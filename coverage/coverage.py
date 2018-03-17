@@ -38,7 +38,6 @@ def coverage_struct_size():
 IPC_DATA_SIZE = coverage_struct_size()
 
 class Coverage:
-
     def __init__(self, shm=None, verbose=False):
         self.last_block = 0
         self.instruction = None

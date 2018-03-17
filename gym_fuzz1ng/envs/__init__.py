@@ -1,0 +1,1 @@
+from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzLibPNGEnv
