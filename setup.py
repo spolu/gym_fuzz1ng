@@ -9,7 +9,7 @@ class Build(DistutilsBuild):
     def run(self):
         try:
             subprocess.check_call('cp -R ../mods .', cwd='build', shell=True)
-            subprocess.check_call(['make'], cwd='build/mods')
+            subprocess.check_call(['make', 'all'], cwd='build/mods')
         except subprocess.CalledProcessError as e:
             sys.stderr.write("Could not build afl: %s.\n" % e)
             raise

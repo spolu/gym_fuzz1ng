@@ -51,7 +51,7 @@ libpng_simple_fopen_afl: $(LIBPNG_DIR)/$(LIBPNG_A_PATH)
 # ALL
 
 all: $(AFL_DIR)/afl-fuzz \
-  $(LIBPNG_DIR)/$(LIBPNG_A_PATH)
+  $(LIBPNG_DIR)/$(LIBPNG_A_PATH) libpng_simple_fopen_afl
 
 clean:
 	rm -rf $(AFL_DIR)
