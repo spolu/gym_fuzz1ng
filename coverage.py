@@ -18,7 +18,6 @@ PATH_MAP_SIZE = 2**16
 IPC_DATA_MAGIC = 0xdeadbeef
 
 '''
-coverage.hpp
     UINT32  ipc_data_size;      // sanity checks...
 
     UINT64  instruction_RVA;    // RVA of last instruction
@@ -40,9 +39,7 @@ IPC_DATA_SIZE = coverage_struct_size()
 
 class Coverage:
 
-    # Init a local coverage from a shm received from pintool (WARNING: need to
-    # be same as in coverage.hpp).
-    def __init__(self, shm = None, verbose=False):
+    def __init__(self, shm=None, verbose=False):
         self.last_block = 0
         self.instruction = None
         self.transitions = {}
@@ -183,7 +180,6 @@ class Afl:
         # create a fake structure and use IPC constructor...
         # very dirty, I know
         '''
-        coverage.hpp
             UINT32  ipc_data_size;      // sanity checks...
 
             UINT64  instruction_RVA;    // RVA of last instruction
@@ -195,7 +191,6 @@ class Afl:
 
             UINT32  magic;              // sanity checks... TODO: get rid of it
         '''
-
 
         # STATUS_OK means that bitmap is reliable
         # TODO: do something clean, this is horrible fix
