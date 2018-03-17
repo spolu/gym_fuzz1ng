@@ -58,4 +58,5 @@ clean:
 	rm -rf $(AFL_MOD)/afl-$(AFL_VERSION).tgz
 	rm -rf $(LIBPNG_DIR)
 	rm -rf $(LIBPNG_MOD)/libpng-$(LIBPNG_VERSION).tar.gz
+	rm -rf $(LIBPNG_MOD)/libpng_simple_fopen_afl
 
