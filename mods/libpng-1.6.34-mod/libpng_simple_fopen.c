@@ -21,12 +21,14 @@ png_bytep * row_pointers;
 int read_png_file(char* file_name)
 {
   char header[8];    // 8 is the maximum size that can be checked
+  size_t len;
 
   /* open file and test for it being a png */
   FILE *fp = fopen(file_name, "rb");
   if (!fp)
     return -1;
-  fread(header, 1, 8, fp);
+
+  len = fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8))
     return -1;
 
