@@ -21,7 +21,10 @@ if not os.path.exists('build'):
 setup(
     name='gym_fuzz1ng',
     version='0.0.1',
-    install_requires=['gym>=0.10.3'],
+    install_requires=[
+        'gym>=0.10.3',
+        'xxhash>=1.0.1',
+    ],
     author='spolu, adbq',
     packages=['gym_fuzz1ng'],
     cmdclass={'build': Build },
