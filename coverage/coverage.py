@@ -145,12 +145,15 @@ class Coverage:
 AFL ENGINE
 """
 
-from forkclient import *
+client_id = 0
+afl_running = False
 
 class Afl:
-    def __init__(self, client_id, verbose=False):
+    def __init__(self, verbose=False):
+        global client_id
         self.verbose = verbose
         self.client_id = client_id
+        client_id += 1
 
         # creates everything
         try:
@@ -199,7 +202,6 @@ class Afl:
             crash_info = 1
 
         fake_shm = struct.pack(fmt_coverage, IPC_DATA_SIZE, 0, 0, crash_info, data, 0, IPC_DATA_MAGIC)
-
         local_coverage = Coverage(fake_shm, self.verbose)
 
         return local_coverage

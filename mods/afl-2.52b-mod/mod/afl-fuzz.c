@@ -8322,7 +8322,7 @@ int main(int argc, char** argv) {
           case PING_NEW_CLIENT_MESSAGE:
             new_external_client(ping_msg_hdr->msgid);
             break;
-        
+
           case PING_NORMAL_MESSAGE:
             /*
              * if client is alive (= connected), proceed with message
@@ -8331,10 +8331,6 @@ int main(int argc, char** argv) {
             if (is_client_alive(ping_msg_hdr->msgid)) {
               memcpy(input, shared_mem_ptr[ping_msg_hdr->msgid], ping_msg_hdr->inputsize);
               common_fuzz_stuff(use_argv, input, ping_msg_hdr->inputsize);
-
-
-
-
 
               /*
                 Computes returned status
