@@ -12,6 +12,7 @@ import numpy as np
 import xxhash
 
 from coverage.forkclient import ForkClient
+from coverage.forkclient import STATUS_OK
 
 PATH_MAP_SIZE = 2**16
 IPC_DATA_MAGIC = 0xdeadbeef
@@ -148,7 +149,7 @@ client_id = 0
 afl_running = False
 
 class Afl:
-    def __init__(self, target_path, verbose=False):
+    def __init__(self, target_path, verbose=False, launch_afl_fuzz=True):
         global client_id
         self.verbose = verbose
         self.client_id = client_id
@@ -156,7 +157,9 @@ class Afl:
 
         # creates everything
         try:
-            self.fc = ForkClient(target_path, client_id)
+            self.fc = ForkClient(
+                target_path, client_id, launch_afl_fuzz=launch_afl_fuzz,
+            )
 
         except:
             print ( " ***\n"

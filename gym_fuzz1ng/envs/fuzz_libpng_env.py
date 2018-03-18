@@ -46,7 +46,7 @@ _dict = coverage.Dictionary({
 class FuzzLibPNGEnv(gym.Env):
     def __init__(self):
         self.engine = coverage.Afl(
-            gym_fuzz1ng.libpng_target_path(),
+            gym_fuzz1ng.libpng_target_path(), launch_afl_fuzz=False
         )
         self.observation_space = gym.spaces.Box(
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='float32',
@@ -81,10 +81,10 @@ class FuzzLibPNGEnv(gym.Env):
         else:
             self.input_data += _dict.bytes(int(action))
 
-        coverage = self.engine.run(self.input_data)
+        c = self.engine.run(self.input_data)
 
         reward -= self.current_coverage.transition_count()
-        self.current_coverage.add(coverage)
+        self.current_coverage.add(c)
         reward += self.current_coverage.transition_count()
 
         if eof:

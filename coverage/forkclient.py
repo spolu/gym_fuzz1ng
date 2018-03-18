@@ -46,7 +46,7 @@ def afl_fuzz_path():
     return os.path.join(package_directory, '../build/mods/afl-2.52b-mod/afl-2.52b/afl-fuzz')
 
 class ForkClient:
-    def __init__(self, target_path, client_id):
+    def __init__(self, target_path, client_id, launch_afl_fuzz=True):
         global _process
         global _target_path
         global _clients
@@ -54,40 +54,41 @@ class ForkClient:
         self.client_id = client_id
 
         with _lock:
-            if _process is None:
-                print("Starting afl-fuzz in external mode")
-                env = os.environ.copy()
-                afl_in = tempfile.mkdtemp(suffix='afl_in')
-                afl_out = tempfile.mkdtemp(suffix='afl_out')
+            if launch_afl_fuzz:
+                if _process is None:
+                    print("Starting afl-fuzz in external mode")
+                    env = os.environ.copy()
+                    afl_in = tempfile.mkdtemp(suffix='afl_in')
+                    afl_out = tempfile.mkdtemp(suffix='afl_out')
 
-                env['AFL_NO_UI'] = '1'
-                FNULL = open(os.devnull, 'w')
+                    env['AFL_NO_UI'] = '1'
+                    FNULL = open(os.devnull, 'w')
 
-                cmd = [
-                    afl_fuzz_path(),
-                    '-E',
-                    '-i', afl_in,
-                    '-o', afl_out,
-                    '--',
-                    target_path,
-                    '@@',
-                ]
-                _process = subprocess.Popen(
-                    cmd,
-                    env=env,
-                    stdout=FNULL,
-                    stderr=subprocess.STDOUT,
-                )
-                _target_path = target_path
-            else:
-                if target_path != _target_path:
-                    raise Exception(
-                        "Concurrent targets is not supported: {} {}".format(
-                            target_path,
-                            _target_Path,
-                        ),
+                    cmd = [
+                        afl_fuzz_path(),
+                        '-E',
+                        '-i', afl_in,
+                        '-o', afl_out,
+                        '--',
+                        target_path,
+                        '@@',
+                    ]
+                    _process = subprocess.Popen(
+                        cmd,
+                        env=env,
+                        stdout=FNULL,
+                        stderr=subprocess.STDOUT,
                     )
-            _clients[self.client_id] = True
+                    _target_path = target_path
+                else:
+                    if target_path != _target_path:
+                        raise Exception(
+                            "Concurrent targets is not supported: {} {}".format(
+                                target_path,
+                                _target_Path,
+                            ),
+                        )
+                _clients[self.client_id] = True
 
         # created by afl-mod
         self.mq_input = posix_ipc.MessageQueue(
@@ -141,7 +142,8 @@ class ForkClient:
             raise
 
         with _lock:
-            del _clients[self.client_id]
+            if self.client_id in _clients:
+                del _clients[self.client_id]
             if len(_clients.keys()) == 0 and _process is not None:
                 _process.terminate()
 
