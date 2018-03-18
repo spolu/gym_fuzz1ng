@@ -22,7 +22,7 @@ setup(
     name='gym_fuzz1ng',
     version='0.0.1',
     install_requires=['gym>=0.10.3'],
-    author='Stanislas Polu',
+    author='spolu, adbq',
     packages=['gym_fuzz1ng'],
     cmdclass={'build': Build },
     include_package_data=True
