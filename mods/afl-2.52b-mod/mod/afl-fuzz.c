@@ -8143,9 +8143,7 @@ int main(int argc, char** argv) {
   init_count_class16();
 
   setup_dirs_fds();
-  if (!external_mode) {
-    read_testcases();
-  }
+  read_testcases();
   load_auto();
   if (!external_mode) {
     pivot_inputs();

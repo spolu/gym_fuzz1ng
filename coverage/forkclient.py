@@ -60,6 +60,9 @@ class ForkClient:
                     env = os.environ.copy()
                     afl_in = tempfile.mkdtemp(suffix='afl_in')
                     afl_out = tempfile.mkdtemp(suffix='afl_out')
+                    dummy = open(os.path.join(afl_in, 'dummy'), "w")
+                    dummy.write("foobar")
+                    dummy.close()
 
                     env['AFL_NO_UI'] = '1'
                     FNULL = open(os.devnull, 'w')
