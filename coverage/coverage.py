@@ -149,7 +149,7 @@ client_id = 0
 afl_running = False
 
 class Afl:
-    def __init__(self, verbose=False):
+    def __init__(self, target_path, verbose=False):
         global client_id
         self.verbose = verbose
         self.client_id = client_id
@@ -157,7 +157,7 @@ class Afl:
 
         # creates everything
         try:
-            self.fc = ForkClient(client_id)
+            self.fc = ForkClient(target_path, client_id)
 
         except:
             print ( " ***\n"

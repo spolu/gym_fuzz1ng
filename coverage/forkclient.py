@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import posix_ipc
 import mmap
 import struct
@@ -11,8 +8,8 @@ import signal
 import os
 import sys
 import time
-
-from multiprocessing import Process, Pipe
+import tempfile
+import subprocess
 
 # TODO: make this better
 MAX_INPUT_SIZE = (2**12)
@@ -38,150 +35,153 @@ EXTERNAL_INPUT_QUEUE_NAME = "/afl-external-input"
 EXTERNAL_CLIENT_QUEUE_NAME = "/afl-external-client-%08d"
 EXTERNAL_CLIENT_SHM_NAME = "/afl-external-client-%08d"
 
+_process = None
+_target_path = None
+
+def afl_fuzz_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(package_directory, '../build/mods/afl-2.52b-mod/afl-2.52b/afl-fuzz')
+
 class ForkClient:
+    def __init__(self, target_path, client_id):
+        global _process
+
+        if _process is None:
+            print("Starting afl-fuzz in external mode")
+            env = os.environ.copy()
+            afl_in = tempfile.mkdtemp(suffix='afl_in')
+            afl_out = tempfile.mkdtemp(suffix='afl_out')
+
+            cmd = [
+                afl_fuzz_path(),
+                '-E',
+                '-i', afl_in,
+                '-o', afl_out,
+                '--',
+                target_path,
+                '@@',
+            ]
+            _process = subprocess.Popen(cmd, env=env)
+            _target_path = target_path
+        else:
+            if target_path != _target_path:
+                raise Exception(
+                    "Concurrent targets is not supported: {} {}".format(
+                        target_path,
+                        _target_Path,
+                    ),
+                )
+
+        self.client_id = client_id
+
+        # created by afl-mod
+        self.mq_input = posix_ipc.MessageQueue(
+            EXTERNAL_INPUT_QUEUE_NAME,
+            flags = 0,
+            max_messages = 100,
+            max_message_size = ping_struc_hdr_size,
+        )
+
+        # created here
+        try:
+            self.mq_return = posix_ipc.MessageQueue(
+                EXTERNAL_CLIENT_QUEUE_NAME % client_id,
+                flags = posix_ipc.O_CREAT,
+                max_messages = 10,
+                max_message_size = (pong_struc_hdr_size),
+            )
+        except:
+            print (
+                "Exception while trying to create: /dev/mqueue" +
+                EXTERNAL_CLIENT_QUEUE_NAME % client_id,
+            )
+            raise
+
+        self.shm = posix_ipc.SharedMemory(
+            EXTERNAL_CLIENT_SHM_NAME % client_id,
+            flags = posix_ipc.O_CREAT,
+            size = MAP_SIZE,
+        )
+        self.mm = mmap.mmap(self.shm.fd, MAP_SIZE)
+
+        # send init signal to AFL (type init ping message)
+        self.send_new()
+
+    def __del__(self):
+        self.send_delete()
+
+        try:
+            self.mm.close()
+            self.shm.close_fd()
+            #self.shm.unlink()
+        except:
+            raise
+
+        try:
+            self.mq_input.close()
+            self.mq_return.unlink()
+            self.mq_return.close()
+        except:
+            raise
+
     def send_new(self):
         self.send_ping(b"", PING_NEW_CLIENT_MESSAGE)
 
-        def send_delete(self):
-            self.send_ping(b"", PING_DELETE_CLIENT_MESSAGE)
+    def send_delete(self):
+        self.send_ping(b"", PING_DELETE_CLIENT_MESSAGE)
+
+    def send_ping(self, input, type=PING_NORMAL_MESSAGE):
+        """
+          .--------------------.
+          |    PING message    |
+          |--------------------|
+          | uint32 msgid       |
+          | uint32 type        |
+          | uint32 size        |
+          '--------------------'
+        """
+        assert  (len(input) <= MAX_INPUT_SIZE)
+
+        # write input to shm
+        self.mm.seek(0)
+        self.mm.write(input)
+        self.mm.flush()
+
+        # send message
+        self.mq_input.send(
+            struct.pack(ping_struc_hdr, self.client_id, type, len(input)),
+        )
+
+    def get_pong(self):
+        """
+          .---------------------.
+          |    PONG message     |
+          |---------------------|
+          | uint32 msgid (same) |
+          | uint32 status       |
+          | uint32 size         |
+          '---------------------'
+        """
+        (msg, _) = self.mq_return.receive()
+
+        (msgid, status, size) = struct.unpack(
+            pong_struc_hdr, msg[:pong_struc_hdr_size],
+        )
+
+        assert (size == MAP_SIZE)
+        assert (self.client_id == msgid)
+
+        # get data from shm
+        self.mm.seek(0)
+        data = self.mm.read(size)
+
+        return (status, data)
 
 
-        def send_ping(self, input, type=PING_NORMAL_MESSAGE):
-            """
-	                                 .--------------------.
-	                                 |    PING message    |
-	      |==|=====|                 |--------------------|
-	      |  |     |---------------->| uint32 msgid       |-------------.
-	      |  |     |                 | uint32 type        |             |
-	      |  |     |		 | uint32 size        |             |
-	      |  |     |                 '--------------------'             |
-	      |  |     |                                                    |
-	      |  |====°|                                                    |
-	      |__|_____|                                                    |
-	   External fuzzer                                                  |
-	   (python3 daemon)                                                 |
-            """
-            assert  (len(input) <= MAX_INPUT_SIZE)
-
-            # write input to shm
-            self.mm.seek(0)
-            self.mm.write(input)
-            self.mm.flush()
-
-            # send message
-            self.mq_input.send(struct.pack(ping_struc_hdr, self.client_id, type, len(input)))
-
-        def get_pong(self):
-            """
-	           ^
-	           |               .----------------------.             ________
-	           |               |     PONG message     |            |==|=====|
-	           |               |----------------------|            |  |     |
-	           |               | uint32 msgid (same)  |            |  |     |
-	           '---------------| uint32 status        |<-----------|  |     |
-	                           | uint32 size          |            |  |     |
-                                   '----------------------'            |  |====°|
-                                                                       |__|_____|
-            """
-            (msg, _) = self.mq_return.receive()
-
-            (msgid, status, size) = struct.unpack(pong_struc_hdr, msg[:pong_struc_hdr_size])
-
-            assert (size == MAP_SIZE)
-
-            assert (self.client_id == msgid)
-
-            # get data from shm
-            self.mm.seek(0)
-            data = self.mm.read(size)
-
-            return (status, data)
-
-        def __init__(self, client_id):
-            self.client_id = client_id
-
-            # created by afl-mod
-            self.mq_input = posix_ipc.MessageQueue(EXTERNAL_INPUT_QUEUE_NAME, flags = 0, max_messages = 100, max_message_size = ping_struc_hdr_size)
-
-            # created here
-            try:
-                self.mq_return = posix_ipc.MessageQueue(EXTERNAL_CLIENT_QUEUE_NAME % client_id, flags = posix_ipc.O_CREAT, max_messages = 10, max_message_size = (pong_struc_hdr_size))
-            except:
-                print ("Exception while trying to create: /dev/mqueue" + EXTERNAL_CLIENT_QUEUE_NAME % client_id)
-                raise
-
-            self.shm = posix_ipc.SharedMemory(EXTERNAL_CLIENT_SHM_NAME % client_id, flags = posix_ipc.O_CREAT, size = MAP_SIZE)
-            self.mm = mmap.mmap(self.shm.fd, MAP_SIZE)
-
-            # send init signal to AFL (type init ping message)
-            self.send_new()
-
-        def __del__(self):
-            self.send_delete()
-
-            try:
-                self.mm.close()
-                self.shm.close_fd()
-                #self.shm.unlink()
-            except:
-                raise
-
-            try:
-                self.mq_input.close()
-                self.mq_return.unlink()
-                self.mq_return.close()
-            except:
-                raise
-
-
-def worker(client_id):
-    import resource
-    try:
-        fc = ForkClient(client_id)
-    except:
-        raise
-
-    while True:
-        #print ("msg " + str(i))
-        fc.send_ping(b"hello\x00")
-
-        # simulate some computation
-        time.sleep(.0001)
-
-        try:
-            (status, data) = fc.get_pong()
-        except:
-            print("Exception receiving a PONG!")
-            raise
-
-        if data != bytes(MAP_SIZE):
-            print("NOT NULL")
-            for i in data:
-                if data[i] != 0:
-                    print (str(data[i]) + "    " + str(i) + " / " + str(MAP_SIZE))
-                #print(data[:10])
-                #print("Received PONG with id: " + str(msgid));
-
-        print ("Done")
-
-# "clean" exit
 def signal_handler(signal, frame):
-    print ("Bye-bye")
-    sys.exit(0)
+    global _process
 
+    if _process is not None:
+        _process.terminate()
 
-if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal_handler)
-
-    try:
-        nb_proc = int(sys.argv[1], 10)
-    except:
-        print ("Args: " + sys.argv[0] + " <Nb processes>")
-
-        jobs = []
-        for i in range(nb_proc):
-            print ("Starting " + str(i))
-            p = Process(target=worker, args=(i,))
-            jobs.append(p)
-            p.start()
-            time.sleep(.2)
+signal.signal(signal.SIGINT, signal_handler)

@@ -6827,7 +6827,7 @@ int init_external() {
   }
 
   /* clean external clients queue */
-  for (i = 0; i < MAX_EXTERNAL_CLIENTS; i++) { 
+  for (i = 0; i < MAX_EXTERNAL_CLIENTS; i++) {
     mq_output[i] = -1;
     shared_mem_ptr[i] = NULL;
     fd_shm[i] = -1;
@@ -6835,7 +6835,7 @@ int init_external() {
     snprintf(mq_output_name[i], 128, EXTERNAL_CLIENT_QUEUE_NAME, i);
     snprintf(shm_output_name[i], 128, EXTERNAL_CLIENT_SHM_NAME, i);
   }
-  
+
   if (stop_soon) return 0;
 
   return 1;
@@ -8143,12 +8143,12 @@ int main(int argc, char** argv) {
   init_count_class16();
 
   setup_dirs_fds();
-  read_testcases();
+  if (!external_mode) {
+    read_testcases();
+  }
   load_auto();
-
   if (!external_mode) {
     pivot_inputs();
-
     if (extras_dir) load_extras(extras_dir);
   }
 

@@ -9,7 +9,7 @@ import gym_fuzz1ng
 class FuzzLibPNGEnv(gym.Env):
     def __init__(self):
         c = Coverage()
-        print('>>>' + gym_fuzz1ng.get_libpng_target_path())
+        print('>>>' + gym_fuzz1ng.libpng_target_path())
         pass
 
     def step(self, action):
