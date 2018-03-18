@@ -10,6 +10,7 @@ import sys
 import time
 import tempfile
 import subprocess
+import threading
 
 # TODO: make this better
 MAX_INPUT_SIZE = (2**12)
@@ -37,6 +38,8 @@ EXTERNAL_CLIENT_SHM_NAME = "/afl-external-client-%08d"
 
 _process = None
 _target_path = None
+_clients = {}
+_lock = threading.Lock()
 
 def afl_fuzz_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
@@ -45,34 +48,46 @@ def afl_fuzz_path():
 class ForkClient:
     def __init__(self, target_path, client_id):
         global _process
-
-        if _process is None:
-            print("Starting afl-fuzz in external mode")
-            env = os.environ.copy()
-            afl_in = tempfile.mkdtemp(suffix='afl_in')
-            afl_out = tempfile.mkdtemp(suffix='afl_out')
-
-            cmd = [
-                afl_fuzz_path(),
-                '-E',
-                '-i', afl_in,
-                '-o', afl_out,
-                '--',
-                target_path,
-                '@@',
-            ]
-            _process = subprocess.Popen(cmd, env=env)
-            _target_path = target_path
-        else:
-            if target_path != _target_path:
-                raise Exception(
-                    "Concurrent targets is not supported: {} {}".format(
-                        target_path,
-                        _target_Path,
-                    ),
-                )
+        global _target_path
+        global _clients
 
         self.client_id = client_id
+
+        with _lock:
+            if _process is None:
+                print("Starting afl-fuzz in external mode")
+                env = os.environ.copy()
+                afl_in = tempfile.mkdtemp(suffix='afl_in')
+                afl_out = tempfile.mkdtemp(suffix='afl_out')
+
+                env['AFL_NO_UI'] = '1'
+                FNULL = open(os.devnull, 'w')
+
+                cmd = [
+                    afl_fuzz_path(),
+                    '-E',
+                    '-i', afl_in,
+                    '-o', afl_out,
+                    '--',
+                    target_path,
+                    '@@',
+                ]
+                _process = subprocess.Popen(
+                    cmd,
+                    env=env,
+                    stdout=FNULL,
+                    stderr=subprocess.STDOUT,
+                )
+                _target_path = target_path
+            else:
+                if target_path != _target_path:
+                    raise Exception(
+                        "Concurrent targets is not supported: {} {}".format(
+                            target_path,
+                            _target_Path,
+                        ),
+                    )
+            _clients[self.client_id] = True
 
         # created by afl-mod
         self.mq_input = posix_ipc.MessageQueue(
@@ -108,6 +123,7 @@ class ForkClient:
         self.send_new()
 
     def __del__(self):
+        global _clients
         self.send_delete()
 
         try:
@@ -123,6 +139,11 @@ class ForkClient:
             self.mq_return.close()
         except:
             raise
+
+        with _lock:
+            del _clients[self.client_id]
+            if len(_clients.keys()) == 0 and _process is not None:
+                _process.terminate()
 
     def send_new(self):
         self.send_ping(b"", PING_NEW_CLIENT_MESSAGE)

@@ -4,15 +4,14 @@ import subprocess
 import tempfile
 import signal
 
-from unicorn import *
-from unicorn.x86_const import *
-
 import sysv_ipc
 import posix_ipc
 
 import numpy as np
 
 import xxhash
+
+from coverage.forkclient import ForkClient
 
 PATH_MAP_SIZE = 2**16
 IPC_DATA_MAGIC = 0xdeadbeef
