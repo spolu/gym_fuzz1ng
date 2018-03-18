@@ -11,6 +11,7 @@ import time
 import tempfile
 import subprocess
 import threading
+import gym_fuzz1ng
 
 # TODO: make this better
 MAX_INPUT_SIZE = (2**12)
@@ -41,10 +42,6 @@ _target_path = None
 _clients = {}
 _lock = threading.Lock()
 
-def afl_fuzz_path():
-    package_directory = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(package_directory, '../build/mods/afl-2.52b-mod/afl-2.52b/afl-fuzz')
-
 class ForkClient:
     def __init__(self, target_path, client_id, launch_afl_fuzz=True):
         global _process
@@ -68,7 +65,7 @@ class ForkClient:
                     FNULL = open(os.devnull, 'w')
 
                     cmd = [
-                        afl_fuzz_path(),
+                        gym_fuzz1ng.afl_fuzz_path(),
                         '-E',
                         '-i', afl_in,
                         '-o', afl_out,

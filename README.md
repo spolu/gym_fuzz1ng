@@ -2,6 +2,14 @@
 
 Fuzzing gym environment based on afl (american fuzzy lop).
 
+## Installation
+
+```
+# Note that running setup.py bdist_wheel takes a bit a time as it builds our
+# afl mod as well as the available targets.
+pip install .
+```
+
 ## Available environments
 
 ### `FuzzLibPNGEnv`

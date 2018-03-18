@@ -11,8 +11,8 @@ import numpy as np
 
 import xxhash
 
-from coverage.forkclient import ForkClient
-from coverage.forkclient import STATUS_OK
+from gym_fuzz1ng.coverage.forkclient import ForkClient
+from gym_fuzz1ng.coverage.forkclient import STATUS_OK
 
 PATH_MAP_SIZE = 2**16
 IPC_DATA_MAGIC = 0xdeadbeef

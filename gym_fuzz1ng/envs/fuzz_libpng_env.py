@@ -5,7 +5,7 @@ import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
 
-import coverage
+import gym_fuzz1ng.coverage as coverage
 import gym_fuzz1ng
 
 MAX_INPUT_SIZE = 2**10
