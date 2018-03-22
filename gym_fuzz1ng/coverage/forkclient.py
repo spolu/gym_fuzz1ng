@@ -53,32 +53,35 @@ class ForkClient:
         with _lock:
             if launch_afl_fuzz:
                 if _process is None:
-                    print("Starting afl-fuzz in external mode")
                     env = os.environ.copy()
-                    afl_in = tempfile.mkdtemp(suffix='afl_in')
-                    afl_out = tempfile.mkdtemp(suffix='afl_out')
-                    dummy = open(os.path.join(afl_in, 'dummy'), "w")
-                    dummy.write("foobar")
-                    dummy.close()
 
-                    env['AFL_NO_UI'] = '1'
-                    FNULL = open(os.devnull, 'w')
+                    if 'EXTERNAL_AFL_FUZZ' not in env:
+                        print("Starting afl-fuzz in external mode")
+                        afl_in = tempfile.mkdtemp(suffix='afl_in')
+                        afl_out = tempfile.mkdtemp(suffix='afl_out')
+                        dummy = open(os.path.join(afl_in, 'dummy'), "w")
+                        dummy.write("foobar")
+                        dummy.close()
 
-                    cmd = [
-                        gym_fuzz1ng.afl_fuzz_path(),
-                        '-E',
-                        '-i', afl_in,
-                        '-o', afl_out,
-                        '--',
-                        target_path,
-                        '@@',
-                    ]
-                    _process = subprocess.Popen(
-                        cmd,
-                        env=env,
-                        stdout=FNULL,
-                        stderr=subprocess.STDOUT,
-                    )
+                        env['AFL_NO_UI'] = '1'
+                        FNULL = open(os.devnull, 'w')
+
+                        cmd = [
+                            gym_fuzz1ng.afl_fuzz_path(),
+                            '-E',
+                            '-i', afl_in,
+                            '-o', afl_out,
+                            '--',
+                            target_path,
+                            '@@',
+                        ]
+                        _process = subprocess.Popen(
+                            cmd,
+                            env=env,
+                            stdout=FNULL,
+                            stderr=subprocess.STDOUT,
+                        )
+
                     _target_path = target_path
                 else:
                     if target_path != _target_path:
