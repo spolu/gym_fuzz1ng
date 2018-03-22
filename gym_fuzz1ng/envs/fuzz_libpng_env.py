@@ -94,7 +94,7 @@ class FuzzLibPNGEnv(gym.Env):
         return np.stack([
             self.current_coverage.observation(),
             self.total_coverage.observation(),
-        ]), reward, done, {}
+        ]), reward, done, { "coverage": c }
 
     def render(self, mode='human', close=False):
         pass
