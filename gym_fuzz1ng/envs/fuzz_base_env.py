@@ -56,16 +56,18 @@ class FuzzBaseEnv(gym.Env):
         self.current_coverage.add(c)
         reward += self.current_coverage.transition_count()
 
+        current_coverage = self.current_coverage
+
         if eof:
             self.input_data = b""
             self.current_coverage = coverage.Coverage()
 
         return np.stack([
-            self.current_coverage.observation(),
+            current_coverage.observation(),
             self.total_coverage.observation(),
         ]), reward, done, {
             "step_coverage": c,
-            "current_coverage": self.current_coverage,
+            "current_coverage": current_coverage,
             "total_coverage": self.total_coverage,
         }
 

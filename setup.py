@@ -16,7 +16,7 @@ class Build(DistutilsBuild):
 
 setup(
     name='gym_fuzz1ng',
-    version='0.0.4',
+    version='0.0.5',
     platforms='Posix',
     install_requires=[
         'gym>=0.10.3',
@@ -29,6 +29,7 @@ setup(
         'gym_fuzz1ng.mods': [
             'afl-2.52b-mod/afl-2.52b/afl-fuzz',
             'libpng-1.6.34-mod/libpng_simple_fopen_afl',
+            'simple_bits-mod/simple_bits_afl',
         ],
     },
     packages=[
