@@ -76,6 +76,8 @@ class Coverage:
                 self.transitions[i] = coverage_pathes[i]
                 x.update(str(i))
 
+        print(">> COV: {}".format(self.transitions))
+
         self.pathes[x.digest()] = 1
 
         if (coverage_crash_offset != 0):
