@@ -63,7 +63,11 @@ class FuzzBaseEnv(gym.Env):
         return np.stack([
             self.current_coverage.observation(),
             self.total_coverage.observation(),
-        ]), reward, done, { "coverage": c }
+        ]), reward, done, {
+            "step_coverage": c,
+            "current_coverage": self.current_coverage,
+            "total_coverage": self.total_coverage,
+        }
 
     def render(self, mode='human', close=False):
         pass

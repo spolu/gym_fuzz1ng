@@ -13,20 +13,28 @@
 
 void vulnerable(unsigned char* data_buf)
 {
+  printf("fooo %d %d\n", data_buf[0], data_buf[1]);
+
   if(data_buf[0] == 0x01 && data_buf[1] == 0x02 && data_buf[2] == 0x03 && data_buf[3] == 0x04 && data_buf[4] == 0x05)
   {
     // Cause an 'invalid read' crash if data[0..4] == "\x01\x02\x03\x04\x05"
-    unsigned char invalid_read = *(unsigned char*)0x00000000;
+    asm ("xor %eax, %eax");
+    asm ("xor %ecx, %ecx");
+    asm ("movl	(%ecx),%eax");
   }
   else if(data_buf[0] > 0x10 && data_buf[0] < 0x20 && data_buf[1] > data_buf[2])
   {
     // Cause an 'invalid read' crash if (0x10 < data[0] < 0x20) and data[1] > data[2]
-    unsigned char invalid_read = *(unsigned char*)0x00000000;
+    asm ("xor %eax, %eax");
+    asm ("xor %ecx, %ecx");
+    asm ("movl	(%ecx),%eax");
   }
   else if(data_buf[9] == 0x00 && data_buf[10] != 0x00 && data_buf[11] == 0x00)
   {
     // Cause a crash if data[10] is not zero, but [9] and [11] are zero
-    unsigned char invalid_read = *(unsigned char*)0x00000000;
+    asm ("xor %eax, %eax");
+    asm ("xor %ecx, %ecx");
+    asm ("movl	(%ecx),%eax");
   }
 }
 
