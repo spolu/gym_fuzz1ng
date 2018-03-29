@@ -10,20 +10,17 @@ import gym_fuzz1ng
 
 MAX_INPUT_SIZE = 2**10
 
-_dict = coverage.Dictionary({
-    'tokens': [],
-    'bytes': True,
-})
-
-class FuzzLSimpleBitsEnv(gym.Env):
+class FuzzBaseEnv(gym.Env):
     def __init__(self):
+        # Classes that inherit FuzzBase must define self.dict and
+        # self.target_path before calling this constructor.
         self.engine = coverage.Afl(
-            gym_fuzz1ng.simple_bits_target_path(), launch_afl_fuzz=True,
+            self.target_path, launch_afl_fuzz=True,
         )
         self.observation_space = gym.spaces.Box(
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
         )
-        self.action_space = spaces.Discrete(_dict.size())
+        self.action_space = spaces.Discrete(self.dict.size())
         self.reset()
 
     def reset(self):
@@ -43,7 +40,7 @@ class FuzzLSimpleBitsEnv(gym.Env):
         done = False
         eof = False
 
-        if int(action) == _dict.eof() or len(self.input_data) >= MAX_INPUT_SIZE:
+        if int(action) == self.dict.eof() or len(self.input_data) >= MAX_INPUT_SIZE:
             eof = True
             old_path_count = self.total_coverage.path_count()
             self.total_coverage.add(self.current_coverage)
@@ -51,7 +48,7 @@ class FuzzLSimpleBitsEnv(gym.Env):
             if old_path_count == new_path_count:
                 done = True
         else:
-            self.input_data += _dict.bytes(int(action))
+            self.input_data += self.dict.bytes(int(action))
 
         c = self.engine.run(self.input_data)
 

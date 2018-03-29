@@ -1,1 +1,3 @@
+from gym_fuzz1ng.envs.fuzz_base_env import FuzzBaseEnv
 from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzLibPNGEnv
+from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzSimpleBitsEnv

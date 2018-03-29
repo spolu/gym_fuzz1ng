@@ -16,7 +16,7 @@ def libpng_target_path():
 
 register(
     id='FuzzSimpleBits-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzSimpleBits',
+    entry_point='gym_fuzz1ng.envs:FuzzSimpleBitsEnv',
 )
 def simple_bits_target_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
