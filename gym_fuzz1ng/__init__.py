@@ -20,4 +20,4 @@ register(
 )
 def simple_bits_target_path():
     package_directory = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(package_directory, 'mods/simple_bits/simple_bits_afl')
+    return os.path.join(package_directory, 'mods/simple_bits-mod/simple_bits_afl')

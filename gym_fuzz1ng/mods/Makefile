@@ -42,16 +42,27 @@ $(LIBPNG_DIR)/$(LIBPNG_A_PATH): $(LIBPNG_DIR)
 	@echo " **** Building libpng with afl"
 	cd $(LIBPNG_DIR) && ./configure -q CC="$(AFL_GCC)" CXX="$(AFL_GXX)" --enable-static --disable-shared; make
 
-libpng_simple_fopen_afl: $(LIBPNG_DIR)/$(LIBPNG_A_PATH)
+$(LIBPNG_MOD)/libpng_simple_fopen_afl: $(LIBPNG_DIR)/$(LIBPNG_A_PATH)
 	@echo " **** Building libpng_simple_fopen_afl"
 	cd $(LIBPNG_MOD) && $(AFL_GCC) libpng_simple_fopen.c \
 	  libpng-$(LIBPNG_VERSION)/$(LIBPNG_A_PATH) \
 	  -o libpng_simple_fopen_afl -lz -lm -I libpng-$(LIBPNG_VERSION)
 
+# SIMPLE_BITS
+
+SIMPLEBITS_MOD=simple_bits-mod
+
+$(SIMPLEBITS_MOD)/simple_bits_afl:
+	@echo " **** Building libpng_simple_bits_afl"
+	cd $(SIMPLEBITS_MOD) && $(AFL_GCC) simple_bits_afl.c \
+	  -o simple_bits_afl -lz -lm
+
+
 # ALL
 
 all: $(AFL_DIR)/afl-fuzz \
-  $(LIBPNG_DIR)/$(LIBPNG_A_PATH) libpng_simple_fopen_afl
+  $(LIBPNG_DIR)/$(LIBPNG_A_PATH) $(LIBPNG_MOD)/libpng_simple_fopen_afl \
+  $(SIMPLEBITS_MOD)/simple_bits_afl
 
 clean:
 	rm -rf $(AFL_DIR)
