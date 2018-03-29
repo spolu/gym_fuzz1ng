@@ -70,4 +70,4 @@ clean:
 	rm -rf $(LIBPNG_DIR)
 	rm -rf $(LIBPNG_MOD)/libpng-$(LIBPNG_VERSION).tar.gz
 	rm -rf $(LIBPNG_MOD)/libpng_simple_fopen_afl
-
+	rm -rf $(SIMPLEBITS_MOD)/simple_bits_afl
