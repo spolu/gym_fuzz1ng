@@ -87,7 +87,7 @@ int process_file(void)
 int main(int argc, char **argv)
 {
   if (argc != 2) {
-    printf("Usage: program_name <file_in>\n");
+    printf("Usage: libpng_simple_fopen <file_in>\n");
     return -2;
   }
   else if (read_png_file(argv[1]) != -1) {
