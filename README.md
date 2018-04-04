@@ -25,7 +25,7 @@ The environment simulates the following game:
 pip install .
 
 # You may need to run the following commands as well as superuser.
-echo 200 > /proc/sys/fs/mqueue/msg_ma
+echo 200 > /proc/sys/fs/mqueue/msg_max
 echo core >/proc/sys/kernel/core_pattern
 
 # You can then test that everything works by running our dummy example.

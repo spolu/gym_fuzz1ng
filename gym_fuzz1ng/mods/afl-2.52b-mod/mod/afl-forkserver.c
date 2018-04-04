@@ -111,10 +111,6 @@ static s32 forksrv_pid,               /* PID of the fork server           */
 
 EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  */
 
-EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
-           virgin_tmout[MAP_SIZE],    /* Bits we haven't seen in tmouts   */
-           virgin_crash[MAP_SIZE];    /* Bits we haven't seen in crashes  */
-
 static s32 shm_id;                    /* ID of the SHM region             */
 
 static volatile u8 stop_soon,         /* Ctrl-C pressed?                  */
@@ -558,6 +554,58 @@ static void check_cpu_governor(void) {
 }
 
 
+/* Get the number of runnable processes, with some simple smoothing. */
+
+static double get_runnable_processes(void) {
+
+  static double res;
+
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined (__OpenBSD__)
+
+  /* I don't see any portable sysctl or so that would quickly give us the
+     number of runnable processes; the 1-minute load average can be a
+     semi-decent approximation, though. */
+
+  if (getloadavg(&res, 1) != 1) return 0;
+
+#else
+
+  /* On Linux, /proc/stat is probably the best way; load averages are
+     computed in funny ways and sometimes don't reflect extremely short-lived
+     processes well. */
+
+  FILE* f = fopen("/proc/stat", "r");
+  u8 tmp[1024];
+  u32 val = 0;
+
+  if (!f) return 0;
+
+  while (fgets(tmp, sizeof(tmp), f)) {
+
+    if (!strncmp(tmp, "procs_running ", 14) ||
+        !strncmp(tmp, "procs_blocked ", 14)) val += atoi(tmp + 14);
+
+  }
+ 
+  fclose(f);
+
+  if (!res) {
+
+    res = val;
+
+  } else {
+
+    res = res * (1.0 - 1.0 / AVG_SMOOTHING) +
+          ((double)val) * (1.0 / AVG_SMOOTHING);
+
+  }
+
+#endif /* ^(__APPLE__ || __FreeBSD__ || __OpenBSD__) */
+
+  return res;
+
+}
+
 
 /* Count the number of logical CPU cores. */
 
@@ -658,12 +706,7 @@ static void remove_shm(void) {
 EXP_ST void setup_shm(void) {
 
   u8* shm_str;
-
-  memset(virgin_bits, 255, MAP_SIZE);
-
-  memset(virgin_tmout, 255, MAP_SIZE);
-  memset(virgin_crash, 255, MAP_SIZE);
-
+  
   shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
 
   if (shm_id < 0) PFATAL("shmget() failed");
@@ -681,6 +724,81 @@ EXP_ST void setup_shm(void) {
   if (!trace_bits) PFATAL("shmat() failed");
 
 }
+
+
+/* Get unix time in milliseconds */
+
+static u64 get_cur_time(void) {
+
+  struct timeval tv;
+  struct timezone tz;
+
+  gettimeofday(&tv, &tz);
+
+  return (tv.tv_sec * 1000ULL) + (tv.tv_usec / 1000);
+
+}
+
+
+
+#define CHK_FORMAT(_divisor, _limit_mult, _fmt, _cast) do { \
+    if (val < (_divisor) * (_limit_mult)) { \
+      sprintf(tmp[cur], _fmt, ((_cast)val) / (_divisor)); \
+      return tmp[cur]; \
+    } \
+  } while (0)
+
+
+/* Describe integer as memory size. */
+
+static u8* DMS(u64 val) {
+
+  static u8 tmp[12][16];
+  static u8 cur;
+
+  cur = (cur + 1) % 12;
+
+  /* 0-9999 */
+  CHK_FORMAT(1, 10000, "%llu B", u64);
+
+  /* 10.0k - 99.9k */
+  CHK_FORMAT(1024, 99.95, "%0.01f kB", double);
+
+  /* 100k - 999k */
+  CHK_FORMAT(1024, 1000, "%llu kB", u64);
+
+  /* 1.00M - 9.99M */
+  CHK_FORMAT(1024 * 1024, 9.995, "%0.02f MB", double);
+
+  /* 10.0M - 99.9M */
+  CHK_FORMAT(1024 * 1024, 99.95, "%0.01f MB", double);
+
+  /* 100M - 999M */
+  CHK_FORMAT(1024 * 1024, 1000, "%llu MB", u64);
+
+  /* 1.00G - 9.99G */
+  CHK_FORMAT(1024LL * 1024 * 1024, 9.995, "%0.02f GB", double);
+
+  /* 10.0G - 99.9G */
+  CHK_FORMAT(1024LL * 1024 * 1024, 99.95, "%0.01f GB", double);
+
+  /* 100G - 999G */
+  CHK_FORMAT(1024LL * 1024 * 1024, 1000, "%llu GB", u64);
+
+  /* 1.00T - 9.99G */
+  CHK_FORMAT(1024LL * 1024 * 1024 * 1024, 9.995, "%0.02f TB", double);
+
+  /* 10.0T - 99.9T */
+  CHK_FORMAT(1024LL * 1024 * 1024 * 1024, 99.95, "%0.01f TB", double);
+
+#undef CHK_FORMAT
+
+  /* 100T+ */
+  strcpy(tmp[cur], "infty");
+  return tmp[cur];
+
+}
+
 
 /* Spin up fork server (instrumented mode only). The idea is explained here:
 
@@ -1506,6 +1624,14 @@ EXP_ST void check_binary(u8* fname) {
 
 
 #ifndef AFL_LIB
+
+
+
+
+
+
+
+
 
 /* Main entry point */
 
