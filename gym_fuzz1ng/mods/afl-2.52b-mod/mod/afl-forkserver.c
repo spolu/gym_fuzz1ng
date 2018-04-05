@@ -118,8 +118,7 @@ static volatile u8 stop_soon,         /* Ctrl-C pressed?                  */
                    child_timed_out;   /* Traced process timed out?        */
 
 EXP_ST u64 total_execs,               /* Total execve() calls             */
-           start_time,                /* Unix start time (ms)             */
-           queue_cycle;               /* Queue round counter              */
+           start_time;                /* Unix start time (ms)             */
 
 static u32 subseq_tmouts;             /* Number of timeouts in a row      */
 
@@ -130,8 +129,6 @@ static s32 cpu_core_count;            /* CPU core count                   */
 static s32 cpu_aff = -1;       	      /* Selected CPU core                */
 
 #endif /* HAVE_AFFINITY */
-
-static FILE* plot_file;               /* Gnuplot output file              */
 
 static u8 *shared_mem_ptr;            /* SHM with external fuzzer         */
 static sem_t *ping_sem, *pong_sem;    /* Semaphores with external fuzzer  */
@@ -870,7 +867,8 @@ EXP_ST void init_forkserver(char** argv) {
 
     setsid();
 
-    dup2(dev_null_fd, 1);
+
+    //dup2(dev_null_fd, 1);
     dup2(dev_null_fd, 2);
 
     if (out_file) {
@@ -897,7 +895,7 @@ EXP_ST void init_forkserver(char** argv) {
     close(out_dir_fd);
     close(dev_null_fd);
     close(dev_urandom_fd);
-    close(fileno(plot_file));
+
 
     /* This should improve performance a bit, since it stops the linker from
        doing extra work post-fork(). */
@@ -1170,7 +1168,6 @@ static u8 run_target(char** argv, u32 timeout) {
       close(dev_null_fd);
       close(out_dir_fd);
       close(dev_urandom_fd);
-      close(fileno(plot_file));
 
       /* Set sane defaults for ASAN if nothing else specified. */
 
@@ -1745,6 +1742,8 @@ int main(int argc, char** argv) {
 
   if (optind == argc) usage(argv[0]);
 
+  ACTF("optind %d argv[optind] %s", optind, argv[optind]);
+
   setup_signal_handlers();
   check_asan_opts();
 
@@ -1802,14 +1801,14 @@ int main(int argc, char** argv) {
   /* Woop woop woop */
 
   if (!no_forkserver && !forksrv_pid)
-    init_forkserver(argv);
+    init_forkserver(use_argv);
 
   sleep(4);
   start_time += 4000;
 
   while (1) {
 
-    ACTF("Entering queue cycle %llu.", queue_cycle);
+    printf(".");
     fflush(stdout);
 
     // Wait until ping is ready from client with input for us

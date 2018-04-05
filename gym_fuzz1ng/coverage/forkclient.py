@@ -1,3 +1,119 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from posix_ipc import *
+import mmap
+import struct
+import random
+import numpy
+import traceback
+import time
+
+MAX_INPUT_SIZE = (2**14)
+MAP_SIZE = (2**16)
+
+_ping_struc_hdr = "<II"
+_pong_struc = "<II"
+
+# compute this only once
+_ping_struc_hdr_size = struct.calcsize(_ping_struc_hdr)
+_pong_struc_size = struct.calcsize(_pong_struc)
+
+STATUS_CRASHED = 0x80000000
+STATUS_HANGED  = 0x40000000
+STATUS_ERROR   = 0x20000000
+
+SHM_SIZE = max(
+    MAP_SIZE + _pong_struc_size,
+    MAX_INPUT_SIZE + _ping_struc_hdr_size,
+)
+
+SEM_PING_SIGNAL_NAME = "/afl-ping-signal"
+SEM_PONG_SIGNAL_NAME = "/afl-pong-signal"
+SHARED_MEM_NAME = "/afl-shared-mem"
+
+def make_ping(msgid, input):
+    """
+    .--------------------.
+    |    PING message    |
+    |--------------------|
+    | uint32 msgid       |
+    | uint32 size        |
+    | uint8  input[size] |
+    '--------------------'
+    """
+    assert  (len(input) <= MAX_INPUT_SIZE)
+
+    msg = struct.pack(
+        _ping_struc_hdr + str(len(input)) + "s", msgid, len(input), input,
+    )
+    return msg
+
+def get_pong(msg):
+    """
+    .------------------------.
+    |      PONG message      |
+    |------------------------|
+    | uint32 msgid (same)    |
+    | uint32 status          |
+    | uint8  input[MAP_SIZE] |
+    '------------------------'
+    """
+    (msgid, status) = struct.unpack(_pong_struc, msg[:_pong_struc_size])
+    data = msg[_pong_struc_size:_pong_struc_size+MAP_SIZE]
+
+    return (msgid, status, data)
+
+def init_forkclient():
+    shm = SharedMemory(SHARED_MEM_NAME)
+    mm = mmap.mmap(shm.fd, 0)
+
+    ping_sem = Semaphore(SEM_PING_SIGNAL_NAME)
+    pong_sem = Semaphore(SEM_PONG_SIGNAL_NAME)
+
+    return (mm, ping_sem, pong_sem)
+
+if __name__ == '__main__':
+    try:
+        (mm, ping_sem, pong_sem) = init_forkclient()
+    except:
+        raise
+
+    start = time.time()
+
+    for i in range(10000):
+        #print ("msg " + str(i))
+        msgid_ping = random.randint(0, 100)
+        ping_msg = make_ping(msgid_ping, b"hello\x00")
+
+        mm.seek(0)
+        mm.write(ping_msg)
+
+        # tell server that a ping is ready
+        ping_sem.release()
+
+        # Wait for server to proceed with input
+        # do anything while waiting for server...
+
+        # Is there a pong ready?
+        pong_sem.acquire()
+
+        try:
+            (msgid, status, data) = get_pong(mm[0:])
+        except:
+            print("Exception receiving a PONG!")
+            pass
+
+        #print("Received PONG with id: " + str(msgid));
+
+    end = time.time()
+
+    print ("Done {}".format(
+        int(10000 / (end - start)),
+    ))
+
+
+"""
 import posix_ipc
 import mmap
 import struct
@@ -157,15 +273,6 @@ class ForkClient:
         self.send_ping(b"", PING_DELETE_CLIENT_MESSAGE)
 
     def send_ping(self, input, type=PING_NORMAL_MESSAGE):
-        """
-          .--------------------.
-          |    PING message    |
-          |--------------------|
-          | uint32 msgid       |
-          | uint32 type        |
-          | uint32 size        |
-          '--------------------'
-        """
         assert  (len(input) <= MAX_INPUT_SIZE)
 
         # write input to shm
@@ -179,15 +286,6 @@ class ForkClient:
         )
 
     def get_pong(self):
-        """
-          .---------------------.
-          |    PONG message     |
-          |---------------------|
-          | uint32 msgid (same) |
-          | uint32 status       |
-          | uint32 size         |
-          '---------------------'
-        """
         (msg, _) = self.mq_return.receive()
 
         (msgid, status, size) = struct.unpack(
@@ -211,3 +309,4 @@ def signal_handler(signal, frame):
         _process.terminate()
 
 signal.signal(signal.SIGINT, signal_handler)
+"""

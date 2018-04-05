@@ -8,7 +8,7 @@
 #include "types.h"
 #include "config.h"
 
-#define MAX_INPUT_SIZE  (1 << 12)
+#define MAX_INPUT_SIZE  (1 << 14)
 
 #define SEM_PING_SIGNAL_NAME "/afl-ping-signal"
 #define SEM_PONG_SIGNAL_NAME "/afl-pong-signal"
