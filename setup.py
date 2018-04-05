@@ -27,7 +27,7 @@ setup(
     author='spolu, adbq',
     package_data={
         'gym_fuzz1ng.mods': [
-            'afl-2.52b-mod/afl-2.52b/afl-fuzz',
+            'afl-2.52b-mod/afl-2.52b/afl-forkserver',
             'libpng-1.6.34-mod/libpng_simple_fopen_afl',
             'simple_bits-mod/simple_bits_afl',
         ],

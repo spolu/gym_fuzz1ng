@@ -15,7 +15,7 @@ class FuzzBaseEnv(gym.Env):
         # Classes that inherit FuzzBase must define self.dict and
         # self.target_path before calling this constructor.
         self.engine = coverage.Afl(
-            self.target_path, launch_afl_fuzz=True,
+            self.target_path, launch_afl_forkserver=True,
         )
         self.observation_space = gym.spaces.Box(
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
