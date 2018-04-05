@@ -33,6 +33,7 @@ typedef struct pong_msg {
 // defines for pong_msg_hdr->status
 #define STATUS_CRASHED	0x80000000
 #define STATUS_HANGED	0x40000000
+#define STATUS_ERROR    0x20000000
 #define STATUS_OK		0
 
 #endif

@@ -586,7 +586,7 @@ static double get_runnable_processes(void) {
         !strncmp(tmp, "procs_blocked ", 14)) val += atoi(tmp + 14);
 
   }
- 
+
   fclose(f);
 
   if (!res) {
@@ -1113,7 +1113,7 @@ static u8 run_target(char** argv, u32 timeout) {
 
   /* If we're running in "dumb" mode, we can't rely on the fork server
      logic compiled into the target program, so we will just keep calling
-     execve(). There is a bit of code duplication between here and 
+     execve(). There is a bit of code duplication between here and
      init_forkserver(), but c'est la vie. */
 
   if (no_forkserver) {
@@ -1355,8 +1355,6 @@ EXP_ST u8 common_fuzz_stuff(char** argv, u8* out_buf, u32 len) {
      return 1;
 
   }
-
-  /* This handles FAULT_ERROR for us: */
 
   return 0;
 }
@@ -1834,23 +1832,27 @@ int main(int argc, char** argv) {
 
     /*
       Computes returned status
-        TODO: make this better
-           00  FAULT_NONE,
-           01  FAULT_TMOUT,
-           02  FAULT_CRASH,
-           03  FAULT_ERROR,
-           04  FAULT_NOINST,
-           05  FAULT_NOBITS
+        00  FAULT_NONE,
+        01  FAULT_TMOUT,
+        02  FAULT_CRASH,
+        03  FAULT_ERROR,
+        04  FAULT_NOINST,
+        05  FAULT_NOBITS
     */
     s32 status = 0;
     switch (fault_save) {
       case FAULT_NONE:
         break;
+
       case FAULT_CRASH:
         status |= STATUS_CRASHED;
         break;
       case FAULT_TMOUT:
         status |= STATUS_HANGED;
+        break;
+
+      default:
+        status |= STATUS_ERROR;
         break;
     }
 
