@@ -490,7 +490,7 @@ static void check_crash_handling(void) {
       FATAL("Pipe at the beginning of 'core_pattern'");
 
   }
- 
+
   close(fd);
 
 #endif /* ^__APPLE__ */
@@ -706,7 +706,7 @@ static void remove_shm(void) {
 EXP_ST void setup_shm(void) {
 
   u8* shm_str;
-  
+
   shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
 
   if (shm_id < 0) PFATAL("shmget() failed");
@@ -1361,20 +1361,6 @@ EXP_ST u8 common_fuzz_stuff(char** argv, u8* out_buf, u32 len) {
   return 0;
 }
 
-
-
-/* Destructively simplify trace by eliminating hit count information
-   and replacing it with 0x80 or 0x01 depending on whether the tuple
-   is hit or not. Called on every new crash or timeout, should be
-   reasonably fast. */
-
-static const u8 simplify_lookup[256] = { 
-
-  [0]         = 1,
-  [1 ... 255] = 128
-
-};
-
 /* Destructively classify execution counts in a trace. This is used as a
    preprocessing step for any newly acquired traces. Called on every exec,
    must be fast. */
@@ -1577,17 +1563,6 @@ EXP_ST void check_binary(u8* fname) {
 
   }
 
-  if (memmem(f_data, f_len, SHM_ENV_VAR, strlen(SHM_ENV_VAR) + 1)) {
-
-    SAYF("\n" cLRD "[-] " cRST
-         "This program appears to be instrumented with afl-gcc, but is being run in\n"
-         "    QEMU mode (-Q). This is probably not what you want - this setup will be\n"
-         "    slow and offer no practical benefits.\n");
-
-    FATAL("Instrumentation found in -Q mode");
-
-  }
-
   if (memmem(f_data, f_len, "libasan.so", 10) ||
       memmem(f_data, f_len, "__msan_init", 11)) uses_asan = 1;
 
@@ -1626,11 +1601,62 @@ EXP_ST void check_binary(u8* fname) {
 #ifndef AFL_LIB
 
 
+/* Inits 2 semaphores to talk with the external fuzzer + a shm region to
+   exchange PING and PONG messages. */
 
+int init_external() {
+  int sval = 0;
+  int fd_shm = -1;
 
+  // Unlink shared memory and smeaphores
+  shm_unlink(SHARED_MEM_NAME);
+  sem_unlink(SEM_PING_SIGNAL_NAME);
+  sem_unlink(SEM_PONG_SIGNAL_NAME);
 
+  // Get shared memory
+  if ((fd_shm = shm_open (SHARED_MEM_NAME, O_RDWR | O_CREAT, 0660)) == -1)
+    FATAL("Could not open shm: %s", SHARED_MEM_NAME);
 
+  if (ftruncate (fd_shm, SHM_SIZE) == -1)
+    FATAL("Could not ftruncate shm");
 
+  if ((shared_mem_ptr = mmap (NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
+          fd_shm, 0)) == MAP_FAILED)
+    FATAL("Could not mmap shm");
+
+  // Initialize the shared memory
+  memset(shared_mem_ptr, 0, SHM_SIZE);
+
+  // signal semaphore, indicating that a ping message is available
+  if ((ping_sem = sem_open (SEM_PING_SIGNAL_NAME, O_CREAT, 0660, 0)) == SEM_FAILED)
+    FATAL("Could not create semaphore %s", SEM_PING_SIGNAL_NAME);
+
+  // signal semaphore, indicating that a pong message is available
+  if ((pong_sem = sem_open (SEM_PONG_SIGNAL_NAME, O_CREAT, 0660, 0)) == SEM_FAILED)
+    FATAL("Could not create semaphore %s", SEM_PONG_SIGNAL_NAME);
+
+  // Wait until external fuzzer joined
+  for (; !sval && !stop_soon; usleep(100000)) {
+    if (sem_getvalue(ping_sem, &sval) == -1)
+      FATAL ("Failed to wait on ping semaphore");
+  }
+
+  if (stop_soon) return 0;
+
+  return 1;
+}
+
+/* Un-map the shared memory and unlink the shared memory and semaphore files
+   before exiting.  */
+
+void close_external() {
+  munmap(shared_mem_ptr, SHM_SIZE);
+
+  // Unlink shared memory and smeaphores
+  shm_unlink(SHARED_MEM_NAME);
+  sem_unlink(SEM_PING_SIGNAL_NAME);
+  sem_unlink(SEM_PONG_SIGNAL_NAME);
+}
 
 
 /* Main entry point */
@@ -1638,7 +1664,6 @@ EXP_ST void check_binary(u8* fname) {
 int main(int argc, char** argv) {
   s32 opt;
   u8  mem_limit_given = 0;
-  u8  exit_1 = !!getenv("AFL_BENCH_JUST_ONE");
   char** use_argv;
 
   struct timeval tv;
@@ -1651,7 +1676,7 @@ int main(int argc, char** argv) {
   gettimeofday(&tv, &tz);
   srandom(tv.tv_sec ^ tv.tv_usec ^ getpid());
 
-  while ((opt = getopt(argc, argv, "+m:t:f")) > 0)
+  while ((opt = getopt(argc, argv, "+m:t:f:")) > 0)
 
     switch (opt) {
 
@@ -1793,19 +1818,14 @@ int main(int argc, char** argv) {
     if (sem_wait (ping_sem) == -1)
       FATAL ("Failed to wait on ping semaphore");
 
-    if (!stop_soon && exit_1) stop_soon = 2;
-
     if (stop_soon) break;
 
     // Decoding PING message
-    // TODO: put this in a nice and clean function
     PING_MSG_HDR *ping_msg_hdr = (PING_MSG_HDR *)shared_mem_ptr;
     u8 *input = (u8 *)&shared_mem_ptr[sizeof(PING_MSG_HDR)];
     PONG_MSG pong_msg;
 
     // Sanity check
-    // TODO: check more things
-    //        maybe a checksum?
     if (ping_msg_hdr->inputsize > MAX_INPUT_SIZE) {
       FATAL("Overflow in received ping message");
     }
@@ -1835,14 +1855,12 @@ int main(int argc, char** argv) {
     }
 
     // Craft a pong response
-    // TODO: put this in a nice and clean function
     pong_msg.msgid = ping_msg_hdr->msgid;
     pong_msg.status = status;
-    pong_msg.size = MAP_SIZE;
     memcpy(&pong_msg.trace_bits[0], trace_bits, MAP_SIZE);
 
     // copies to shared_mem
-    memset(shared_mem_ptr, 0, SHM_MAX_SIZE);
+    memset(shared_mem_ptr, 0, SHM_SIZE);
     memcpy(shared_mem_ptr, &pong_msg, sizeof pong_msg);
 
     // Tell client that there is a buffer to read

@@ -23,14 +23,12 @@ typedef struct ping_msg_hdr {
 typedef struct pong_msg {
     u32 msgid;
     u32 status;
-    u32 size;   // always MAP_SIZE?
     u8  trace_bits[MAP_SIZE];
 } PONG_MSG;
 
 #pragma pack()
 
-#define SHM_MAX_SIZE    	(int)MAX(MAP_SIZE, MAX_INPUT_SIZE)
-#define MESSAGE_MAX_SIZE	(int)MAX(sizeof (PING_MSG_HDR), sizeof (PONG_MSG_HDR))
+#define SHM_SIZE MAX(sizeof(PONG_MSG), MAX_INPUT_SIZE + sizeof(PING_MSG_HDR))
 
 // defines for pong_msg_hdr->status
 #define STATUS_CRASHED	0x80000000
