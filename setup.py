@@ -24,7 +24,7 @@ setup(
         'sysv_ipc>=1.0.0',
         'posix_ipc>=1.0.3',
     ],
-    author='spolu, adbq',
+    author='adbq, spolu',
     package_data={
         'gym_fuzz1ng.mods': [
             'afl-2.52b-mod/afl-2.52b/afl-forkserver',

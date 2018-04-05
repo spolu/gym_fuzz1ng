@@ -1,7 +1,7 @@
 # gym-fuzz1ng
 
 Fuzzing gym environment based on afl (american fuzzy lop) for a variety of well
-known libraries (libpng for now) as well as simpler examples (coming soon).
+known libraries (libpng for now) as well as simpler examples.
 
 The action space of these environments is discrete with size based on the
 dictionary used for fuzzing. The size of the action space therefore varies from
@@ -37,5 +37,13 @@ python test/dummy_libpng.py
 
 Fuzzing environment for libpng-1.6.34 (recent).
 
-- **action_space**: `Discrete(283)` dictionary composed of magic tokens and
-  all 255 bytes.
+- **action_space**: `Discrete(283)` dictionary composed of magic tokens, all
+  255 bytes and EOF.
+
+### `FuzzSimpleBits-v0`
+
+Fuzzing environment for the simple_bits executable (see
+[code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_bits-mod/simple_bits_afl.c)).
+
+- **action_space**: `Diescrete(256)` dictionary composed of all 255 bytes and
+  EOF.

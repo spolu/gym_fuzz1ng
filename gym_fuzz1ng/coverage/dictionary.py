@@ -8,7 +8,7 @@ class Dictionary:
         for t in self.config['tokens']:
             self.content.append(t)
         if self.config['bytes']:
-            for b in range(255):
+            for b in range(256):
                 self.content.append(bytes([b]))
 
     def size(self):

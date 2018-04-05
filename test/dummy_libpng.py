@@ -11,10 +11,10 @@ def main():
     c = coverage.Coverage()
 
     inputs = [
-        78, 89, 282,
-        0, 250, 282,
-        0, 250, 1, 282,
-        79, 282,
+        78, 89, 283,
+        0, 250, 283,
+        0, 250, 1, 283,
+        79, 283,
     ]
     for i in inputs:
         obs, reward, done, info = env.step(i)
