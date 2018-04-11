@@ -60,6 +60,9 @@ class FuzzWordBaseEnv(gym.Env):
 
         reward = c.transition_count()
 
+        if c.crash_count() > 0:
+            print("CRASH {}".format(input_data))
+
         return np.stack([
             self.total_coverage.observation(),
             c.observation(),
