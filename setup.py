@@ -16,12 +16,11 @@ class Build(DistutilsBuild):
 
 setup(
     name='gym_fuzz1ng',
-    version='0.0.6',
+    version='0.0.7',
     platforms='Posix',
     install_requires=[
         'gym>=0.10.3',
         'xxhash>=1.0.1',
-        'sysv_ipc>=1.0.0',
         'posix_ipc>=1.0.3',
     ],
     author='adbq, spolu',

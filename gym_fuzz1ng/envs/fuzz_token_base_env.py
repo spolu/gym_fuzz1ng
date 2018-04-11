@@ -8,12 +8,14 @@ from gym.utils import seeding
 import gym_fuzz1ng.coverage as coverage
 import gym_fuzz1ng
 
-MAX_INPUT_SIZE = 2**10
+MAX_INPUT_SIZE = 1024
 
-class FuzzBaseEnv(gym.Env):
+class FuzzTokenBaseEnv(gym.Env):
     def __init__(self):
-        # Classes that inherit FuzzBase must define self.dict and
-        # self.target_path before calling this constructor.
+        # Classes that inherit FuzzTokenBase must define before calling this
+        # constructor:
+        # - self.dict
+        # - self.target_path
         self.engine = coverage.Afl(
             self.target_path, launch_afl_forkserver=True,
         )

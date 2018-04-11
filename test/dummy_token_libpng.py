@@ -5,31 +5,16 @@ import gym_fuzz1ng.coverage as coverage
 # import pdb; pdb.set_trace()
 
 def main():
-    env = gym.make('FuzzSimpleBits-v0')
+    env = gym.make('FuzzTokenLibPNG-v0')
 
     env.reset()
     c = coverage.Coverage()
 
     inputs = [
-        1, 1, 256,
-        1, 1, 256,
-
-        1, 1, 256,
-        12, 256,
-        12, 7, 256,
-        1, 1, 256,
-
-        1, 1, 256,
-        1, 2, 3, 256,
-        1, 2, 3, 4, 256,
-        1, 2, 3, 4, 5, 256,
-        1, 1, 256,
-
-        1, 1, 256,
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 256,
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 256,
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 0, 256,
-        1, 1, 256,
+        78, 89, 283,
+        0, 250, 283,
+        0, 250, 1, 283,
+        79, 283,
     ]
     for i in inputs:
         obs, reward, done, info = env.step(i)
@@ -54,7 +39,6 @@ def main():
         if done:
             env.reset()
             print ("DONE!")
-
 
 if __name__ == "__main__":
     main()

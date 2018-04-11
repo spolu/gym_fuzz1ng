@@ -4,9 +4,6 @@ import subprocess
 import tempfile
 import signal
 
-import sysv_ipc
-import posix_ipc
-
 import numpy as np
 
 import xxhash
