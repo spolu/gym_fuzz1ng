@@ -69,6 +69,7 @@ class FuzzWordBaseEnv(gym.Env):
         ]), reward, done, {
             "step_coverage": c,
             "total_coverage": self.total_coverage,
+            "input_data": input_data,
         }
 
     def render(self, mode='human', close=False):
