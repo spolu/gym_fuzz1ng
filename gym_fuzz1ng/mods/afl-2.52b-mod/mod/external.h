@@ -14,7 +14,16 @@
 #define SEM_PONG_SIGNAL_NAME "/afl-pong-signal"
 #define SHARED_MEM_NAME "/afl-shared-mem"
 
+
 #pragma pack(1)
+typedef struct {
+  u8 	trace_bits[MAP_SIZE];           /* trace[  ] ++                     */
+  u16 	prev[MAP_SIZE];                 /* prev[  ]=_prev_loc               */
+  u16 	next[MAP_SIZE];                 /* next[  ] = _cur_loc              */
+} sblob;
+
+#define BLOB_SIZE (sizeof (sblob))
+
 typedef struct ping_msg_hdr {
     u32 msgid;
     u32 inputsize;
@@ -23,7 +32,7 @@ typedef struct ping_msg_hdr {
 typedef struct pong_msg {
     u32 msgid;
     u32 status;
-    u8  trace_bits[MAP_SIZE];
+    sblob blob;
 } PONG_MSG;
 
 #pragma pack()
