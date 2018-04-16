@@ -45,7 +45,7 @@ class Coverage:
         # load structure
         struct_coverage = struct.unpack_from(fmt_coverage, shm)
         coverage_ipc_data_size =    struct_coverage[0]
-        coverage_status =       struct_coverage[1]
+        coverage_status =           struct_coverage[1]
         coverage_pathes =           struct_coverage[2]
         coverage_magic =            struct_coverage[3]
 
