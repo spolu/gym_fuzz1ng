@@ -366,7 +366,7 @@ static void add_instrumentation(void) {
       if (line[1] == 'j' && line[2] != 'm' && R(100) < inst_ratio) {
 
         fprintf(outf, use_64bit ? trampoline_fmt_64 : trampoline_fmt_32,
-                R(MAP_SIZE));
+                R(2 << 8));
 
         ins_lines++;
 
