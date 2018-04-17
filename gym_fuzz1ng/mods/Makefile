@@ -34,7 +34,7 @@ LIBPNG_A_PATH=/.libs/libpng16.a
 $(LIBPNG_DIR):
 	@echo " **** Downloading libpng"
 	cd $(LIBPNG_MOD) && \
-	  wget http://prdownloads.sourceforge.net/libpng/libpng-$(LIBPNG_VERSION).tar.gz?download \
+	  wget https://freefr.dl.sourceforge.net/project/libpng/libpng16/1.6.34/libpng-$(LIBPNG_VERSION).tar.gz \
 	  -O libpng-$(LIBPNG_VERSION).tar.gz
 	cd $(LIBPNG_MOD) && tar xzf libpng-$(LIBPNG_VERSION).tar.gz
 
