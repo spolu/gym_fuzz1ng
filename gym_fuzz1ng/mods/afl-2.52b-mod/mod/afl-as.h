@@ -176,27 +176,16 @@ static const u8* main_payload_32 =
   "     is a double-XOR way of doing this without tainting another register,\n"
   "     and we use it on 64-bit systems; but it's slower for 32-bit ones. */\n"
   "\n"
-#ifndef COVERAGE_ONLY
   "  movl __afl_prev_loc, %edi\n"
-  "  movl %edi, %eax\n"           // we need to save eax before xor
-  "  xorl %ecx, %edi\n"
-  "  addl $0x10000, %edx\n"
-  "  movw %ax, (%edx, %edi, 2)\n"
-  "  addl $0x20000, %edx\n"
-  "  movw %cx, (%edx, %edi, 2)\n"
-  "  subl $0x30000, %edx\n"
-  "  shrl $1, %ecx\n"
+  "  shll $8, %edi\n"
+  "  addl %ecx, %edi\n"
   "  movl %ecx, __afl_prev_loc\n"
-#else
-  "  movl %ecx, %edi\n"
-#endif /* ^!COVERAGE_ONLY */
   "\n"
 #ifdef SKIP_COUNTS
   "  orb  $1, (%edx, %edi, 1)\n"
 #else
   "  incb (%edx, %edi, 1)\n"
 #endif /* ^SKIP_COUNTS */
-
   "\n"
   "__afl_return:\n"
   "\n"
@@ -414,27 +403,17 @@ static const u8* main_payload_64 =
   "\n"
   "  /* Calculate and store hit for the code location specified in rcx. */\n"
   "\n"
-#ifndef COVERAGE_ONLY
-  "  movq __afl_prev_loc(%rip), %rax\n"
-  "  xorq %rax, %rcx\n"                     // prev^cur -> rcx
-  "  xorq %rcx, __afl_prev_loc(%rip)\n"     // cur      -> prev
-#endif /* ^!COVERAGE_ONLY */
+  "  xorq __afl_prev_loc(%rip), %rcx\n"
+  "  xorq %rcx, __afl_prev_loc(%rip)\n"
+  "  xorq __afl_prev_loc(%rip), %rcx\n"
+  "  shlq $8, %rcx\n"
+  "  addq __afl_prev_loc(%rip), %rcx\n"
   "\n"
 #ifdef SKIP_COUNTS
   "  orb  $1, (%rdx, %rcx, 1)\n"
 #else
   "  incb (%rdx, %rcx, 1)\n"
 #endif /* ^SKIP_COUNTS */
-
-#ifndef COVERAGE_ONLY
-  "  addq $0x10000, %rdx\n"
-  "  movw %ax, (%rdx, %rcx, 2)\n"
-  "  addq $0x20000, %rdx\n"
-  "  movq __afl_prev_loc(%rip), %rax\n"
-  "  movw %ax, (%rdx, %rcx, 2)\n"
-  "  shrq $1, __afl_prev_loc(%rip)\n"       // prev >> 1
-#endif
-
   "\n"
   "__afl_return:\n"
   "\n"

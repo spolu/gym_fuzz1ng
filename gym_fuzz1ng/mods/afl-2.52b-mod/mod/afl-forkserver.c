@@ -109,7 +109,7 @@ static s32 forksrv_pid,               /* PID of the fork server           */
            child_pid = -1,            /* PID of the fuzzed program        */
            out_dir_fd = -1;           /* FD of the lock file              */
 
-EXP_ST sblob *blob;                   /* SHM with instrumentation data    */ 
+EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  */
 
 static s32 shm_id;                    /* ID of the SHM region             */
 
@@ -716,9 +716,9 @@ EXP_ST void setup_shm(void) {
 
   ck_free(shm_str);
 
-  blob = shmat(shm_id, NULL, 0);
+  trace_bits = shmat(shm_id, NULL, 0);
 
-  if (!blob) PFATAL("shmat() failed");
+  if (!trace_bits) PFATAL("shmat() failed");
 
 }
 
@@ -923,8 +923,7 @@ EXP_ST void init_forkserver(char** argv) {
     /* Use a distinctive bitmap signature to tell the parent about execv()
        falling through. */
 
-    u32* p = ((u32*)blob->trace_bits);
-    *p = EXEC_FAIL_SIG;
+    *(u32*)trace_bits = EXEC_FAIL_SIG;
     exit(0);
 
   }
@@ -1036,9 +1035,7 @@ EXP_ST void init_forkserver(char** argv) {
 
   }
 
-  u32* p = ((u32*)blob->trace_bits);
-
-  if (*p == EXEC_FAIL_SIG)
+  if (*(u32*)trace_bits == EXEC_FAIL_SIG)
     FATAL("Unable to execute target application ('%s')", argv[0]);
 
   if (mem_limit && mem_limit < 500 && uses_asan) {
@@ -1109,7 +1106,7 @@ static u8 run_target(char** argv, u32 timeout) {
      must prevent any earlier operations from venturing into that
      territory. */
 
-  memset(blob, 0, BLOB_SIZE);
+  memset(trace_bits, 0, MAP_SIZE);
   MEM_BARRIER();
 
   /* If we're running in "dumb" mode, we can't rely on the fork server
@@ -1188,8 +1185,7 @@ static u8 run_target(char** argv, u32 timeout) {
       /* Use a distinctive bitmap value to tell the parent about execv()
          falling through. */
 
-      u32* p = ((u32*)blob->trace_bits);
-      *p = EXEC_FAIL_SIG;
+      *(u32*)trace_bits = EXEC_FAIL_SIG;
       exit(0);
 
     }
@@ -1260,8 +1256,7 @@ static u8 run_target(char** argv, u32 timeout) {
 
   MEM_BARRIER();
 
-  u32* p = ((u32*)blob->trace_bits);
-  tb4 = *p;
+  tb4 = *(u32*)trace_bits;
 
   prev_timed_out = child_timed_out;
 
@@ -1863,7 +1858,7 @@ int main(int argc, char** argv) {
     // Craft a pong response
     pong_msg.msgid = ping_msg_hdr->msgid;
     pong_msg.status = status;
-    memcpy(&pong_msg.blob.trace_bits[0], blob->trace_bits, MAP_SIZE);
+    memcpy(&pong_msg.trace_bits[0], trace_bits, MAP_SIZE);
 
     // copies to shared_mem
     memset(shared_mem_ptr, 0, SHM_SIZE);
