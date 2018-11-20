@@ -1,9 +1,9 @@
-import os
 import subprocess
 import sys
 
 from setuptools import setup
 from distutils.command.build import build as DistutilsBuild
+
 
 class Build(DistutilsBuild):
     def run(self):
@@ -13,6 +13,7 @@ class Build(DistutilsBuild):
             sys.stderr.write("Could not build mods: %s.\n" % e)
             raise
         DistutilsBuild.run(self)
+
 
 setup(
     name='gym_fuzz1ng',
@@ -37,6 +38,6 @@ setup(
         'gym_fuzz1ng.mods',
         'gym_fuzz1ng.envs',
     ],
-    cmdclass={'build': Build },
+    cmdclass={'build': Build},
     include_package_data=True
 )

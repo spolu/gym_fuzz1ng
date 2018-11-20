@@ -1,14 +1,11 @@
 import gym
-
 import numpy as np
 
-from gym import error, spaces, utils
-from gym.utils import seeding
-
 import gym_fuzz1ng.coverage as coverage
-import gym_fuzz1ng
+
 
 MAX_INPUT_SIZE = 1024
+
 
 class FuzzTokenBaseEnv(gym.Env):
     def __init__(self):
@@ -22,7 +19,7 @@ class FuzzTokenBaseEnv(gym.Env):
         self.observation_space = gym.spaces.Box(
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
         )
-        self.action_space = spaces.Discrete(self.dict.size())
+        self.action_space = gym.spaces.Discrete(self.dict.size())
         self.reset()
 
     def reset(self):
@@ -42,7 +39,8 @@ class FuzzTokenBaseEnv(gym.Env):
         done = False
         eof = False
 
-        if int(action) == self.dict.eof() or len(self.input_data) >= MAX_INPUT_SIZE:
+        if int(action) == self.dict.eof() or \
+                len(self.input_data) >= MAX_INPUT_SIZE:
             eof = True
             old_path_count = self.total_coverage.path_count()
             self.total_coverage.add(self.current_coverage)

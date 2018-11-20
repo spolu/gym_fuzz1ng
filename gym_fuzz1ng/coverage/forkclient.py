@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from posix_ipc import *
 import mmap
 import struct
 import random
-import numpy
-import traceback
 import time
 import tempfile
 import os
@@ -14,6 +8,8 @@ import signal
 import subprocess
 import threading
 import gym_fuzz1ng
+
+from posix_ipc import SharedMemory, Semaphore
 
 MAX_INPUT_SIZE = (2**14)
 MAP_SIZE = (2**16)
@@ -25,10 +21,10 @@ _pong_struc = "<II"
 _ping_struc_hdr_size = struct.calcsize(_ping_struc_hdr)
 _pong_struc_size = struct.calcsize(_pong_struc)
 
-STATUS_OK      = 0
+STATUS_OK = 0
 STATUS_CRASHED = 0x80000000
-STATUS_HANGED  = 0x40000000
-STATUS_ERROR   = 0x20000000
+STATUS_HANGED = 0x40000000
+STATUS_ERROR = 0x20000000
 
 SHM_SIZE = max(
     MAP_SIZE + _pong_struc_size,
@@ -51,6 +47,7 @@ _pong_sem = None
 
 _clients = {}
 _next_client_id = 0
+
 
 class ForkClient:
     def __init__(self, target_path, launch_afl_forkserver=True):
@@ -75,7 +72,9 @@ class ForkClient:
                     if 'EXTERNAL_AFL_FORKSERVER' not in env:
                         print("Starting afl-forkserver...")
 
-                        fd, afl_out_file = tempfile.mkstemp(suffix='afl_out_file')
+                        fd, afl_out_file = tempfile.mkstemp(
+                            suffix='afl_out_file'
+                        )
                         os.close(fd)
 
                         FNULL = open(os.devnull, 'w')
@@ -106,14 +105,14 @@ class ForkClient:
                 else:
                     if target_path != _target_path:
                         raise Exception(
-                            "Concurrent targets is not supported: {} {}".format(
+                            "Concurrent targets is not supported: {} {}"
+                            .format(
                                 target_path,
-                                _target_Path,
+                                _target_path,
                             ),
                         )
 
                 _clients[self.client_id] = True
-
 
     def __del__(self):
         global _clients
@@ -135,7 +134,7 @@ class ForkClient:
         | uint8  input[size] |
         '--------------------'
         """
-        assert  (len(input) <= MAX_INPUT_SIZE)
+        assert (len(input) <= MAX_INPUT_SIZE)
 
         msg = struct.pack(
             _ping_struc_hdr + str(len(input)) + "s", msgid, len(input), input,
@@ -178,11 +177,13 @@ class ForkClient:
 
             return (status, data)
 
+
 def signal_handler(signal, frame):
     global _process
 
     if _process is not None:
         _process.terminate()
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -196,6 +197,6 @@ if __name__ == '__main__':
 
     end = time.time()
 
-    print ("Done {}".format(
+    print("Done {}".format(
         int(10000 / (end - start)),
     ))

@@ -4,6 +4,7 @@ import gym_fuzz1ng.coverage as coverage
 from gym_fuzz1ng.envs.fuzz_token_base_env import FuzzTokenBaseEnv
 from gym_fuzz1ng.envs.fuzz_word_base_env import FuzzWordBaseEnv
 
+
 class FuzzTokenLibPNGEnv(FuzzTokenBaseEnv):
     def __init__(self):
         self.target_path = gym_fuzz1ng.libpng_target_path()
@@ -40,6 +41,7 @@ class FuzzTokenLibPNGEnv(FuzzTokenBaseEnv):
             'bytes': True,
         })
         super(FuzzTokenLibPNGEnv, self).__init__()
+
 
 class FuzzWordLibPNGEnv(FuzzWordBaseEnv):
     def __init__(self):

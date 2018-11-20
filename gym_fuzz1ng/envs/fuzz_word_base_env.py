@@ -1,14 +1,10 @@
 import gym
-
 import numpy as np
 
-from gym import error, spaces, utils
-from gym.utils import seeding
-
 import gym_fuzz1ng.coverage as coverage
-import gym_fuzz1ng
 
 INPUT_SIZE = 1024
+
 
 class FuzzWordBaseEnv(gym.Env):
     def __init__(self):
@@ -40,7 +36,6 @@ class FuzzWordBaseEnv(gym.Env):
 
         reward = 0.0
         done = False
-        eof = False
 
         input_data = b""
 

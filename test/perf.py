@@ -1,8 +1,5 @@
 import time
 import gym
-import gym_fuzz1ng
-
-# import pdb; pdb.set_trace()
 
 
 def main():
@@ -18,6 +15,7 @@ def main():
 
     end = time.time()
     print("EPS {}".format(3000 / (end - start)))
+
 
 if __name__ == "__main__":
     main()
