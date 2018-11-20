@@ -6,13 +6,11 @@ from gym import spaces
 import gym_fuzz1ng.coverage as coverage
 
 
-MAX_INPUT_SIZE = 1024
-
-
 class FuzzTokenBaseEnv(gym.Env):
     def __init__(self):
         # Classes that inherit FuzzTokenBase must define before calling this
         # constructor:
+        # - self.max_input_size
         # - self.dict
         # - self.target_path
         self.engine = coverage.Afl(
@@ -42,7 +40,7 @@ class FuzzTokenBaseEnv(gym.Env):
         eof = False
 
         if int(action) == self.dict.eof() or \
-                len(self.input_data) >= MAX_INPUT_SIZE:
+                len(self.input_data) >= self.max_input_size:
             eof = True
             old_path_count = self.total_coverage.path_count()
             self.total_coverage.add(self.current_coverage)

@@ -7,6 +7,7 @@ from gym_fuzz1ng.envs.fuzz_word_base_env import FuzzWordBaseEnv
 
 class FuzzTokenLibPNGEnv(FuzzTokenBaseEnv):
     def __init__(self):
+        self.max_input_size = 1024
         self.target_path = gym_fuzz1ng.libpng_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [
@@ -45,6 +46,7 @@ class FuzzTokenLibPNGEnv(FuzzTokenBaseEnv):
 
 class FuzzWordLibPNGEnv(FuzzWordBaseEnv):
     def __init__(self):
+        self.max_input_size = 1024
         self.target_path = gym_fuzz1ng.libpng_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [

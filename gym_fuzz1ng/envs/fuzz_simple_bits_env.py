@@ -7,6 +7,7 @@ from gym_fuzz1ng.envs.fuzz_word_base_env import FuzzWordBaseEnv
 
 class FuzzTokenSimpleBitsEnv(FuzzTokenBaseEnv):
     def __init__(self):
+        self.max_input_size = 64
         self.target_path = gym_fuzz1ng.simple_bits_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [],
@@ -17,6 +18,7 @@ class FuzzTokenSimpleBitsEnv(FuzzTokenBaseEnv):
 
 class FuzzWordSimpleBitsEnv(FuzzWordBaseEnv):
     def __init__(self):
+        self.max_input_size = 64
         self.target_path = gym_fuzz1ng.simple_bits_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [],

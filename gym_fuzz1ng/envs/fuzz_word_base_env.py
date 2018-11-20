@@ -5,13 +5,12 @@ from gym import spaces
 
 import gym_fuzz1ng.coverage as coverage
 
-INPUT_SIZE = 1024
-
 
 class FuzzWordBaseEnv(gym.Env):
     def __init__(self):
         # Classes that inherit FuzzWordBase must define before calling this
         # constructor:
+        # - self.max_input_size
         # - self.dict
         # - self.target_path
         self.engine = coverage.Afl(
@@ -21,7 +20,7 @@ class FuzzWordBaseEnv(gym.Env):
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
         )
         self.action_space = spaces.Box(
-            0, self.dict.size(), shape=(INPUT_SIZE,), dtype='int32',
+            0, self.dict.size(), shape=(self.max_input_size,), dtype='int32',
         )
         self.reset()
 
@@ -41,7 +40,7 @@ class FuzzWordBaseEnv(gym.Env):
 
         input_data = b""
 
-        for i in range(INPUT_SIZE):
+        for i in range(self.max_input_size):
             if int(action[i]) == self.dict.eof():
                 break
             input_data += self.dict.bytes(int(action[i]))
