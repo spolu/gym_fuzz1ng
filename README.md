@@ -28,7 +28,7 @@ pip install .
 echo core >/proc/sys/kernel/core_pattern
 
 # You can then test that everything works by running our dummy example.
-python test/dummy_libpng.py
+python dummy_word_simple_bits.py
 ```
 
 ## Available environments
@@ -44,6 +44,14 @@ Fuzzing environment for libpng-1.6.34 (recent).
 
 Fuzzing environment for the simple_bits executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_bits-mod/simple_bits_afl.c)).
+
+- **action_space**: `Discrete(256)` dictionary composed of all 255 bytes and
+  EOF.
+
+### `FuzzSimpleLoop-v0`
+
+Fuzzing environment for the simple_loop executable (see
+[code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_loop-mod/simple_loop_afl.c)).
 
 - **action_space**: `Diescrete(256)` dictionary composed of all 255 bytes and
   EOF.

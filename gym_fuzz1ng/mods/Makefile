@@ -57,12 +57,22 @@ $(SIMPLE_BITS_MOD)/simple_bits_afl:
 	cd $(SIMPLE_BITS_MOD) && $(AFL_GCC) simple_bits_afl.c \
 	  -o simple_bits_afl -lz -lm
 
+# SIMPLE_LOOP
+
+SIMPLE_LOOP_MOD=simple_loop-mod
+
+$(SIMPLE_LOOP_MOD)/simple_loop_afl:
+	@echo " **** Building libpng_simple_loop_afl"
+	cd $(SIMPLE_LOOP_MOD) && $(AFL_GCC) simple_loop_afl.c \
+	  -o simple_loop_afl -lz -lm
+
 
 # ALL
 
 all: $(AFL_DIR)/afl-fuzz \
   $(LIBPNG_DIR)/$(LIBPNG_A_PATH) $(LIBPNG_MOD)/libpng_simple_fopen_afl \
-  $(SIMPLE_BITS_MOD)/simple_bits_afl
+  $(SIMPLE_BITS_MOD)/simple_bits_afl \
+  $(SIMPLE_LOOP_MOD)/simple_loop_afl
 
 clean:
 	rm -rf $(AFL_DIR)
@@ -71,3 +81,4 @@ clean:
 	rm -rf $(LIBPNG_MOD)/libpng-$(LIBPNG_VERSION).tar.gz
 	rm -rf $(LIBPNG_MOD)/libpng_simple_fopen_afl
 	rm -rf $(SIMPLE_BITS_MOD)/simple_bits_afl
+	rm -rf $(SIMPLE_LOOP_MOD)/simple_loop_afl

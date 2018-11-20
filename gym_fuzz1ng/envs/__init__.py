@@ -6,3 +6,6 @@ from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzWordLibPNGEnv
 
 from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzTokenSimpleBitsEnv
 from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzWordSimpleBitsEnv
+
+from gym_fuzz1ng.envs.fuzz_simple_loop_env import FuzzTokenSimpleLoopEnv
+from gym_fuzz1ng.envs.fuzz_simple_loop_env import FuzzWordSimpleLoopEnv
