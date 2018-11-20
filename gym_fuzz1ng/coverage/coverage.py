@@ -59,7 +59,7 @@ class Coverage:
             for i in range(1, PATH_MAP_SIZE):
                 if (coverage_pathes[i] != 0):
                     self.transitions[i] = coverage_pathes[i]
-                    x.update(str(i))
+                    x.update(str(i) + '-' + str(coverage_pathes[i]))
 
             # print(">> COV: {}".format(self.transitions))
 
@@ -67,7 +67,8 @@ class Coverage:
 
     def clean(self):
         self.transitions = {}
-        self.crashes = {}
+        self.pathes = {}
+        self.crashes = 0
 
     def transition_count(self):
         return len(self.transitions)
