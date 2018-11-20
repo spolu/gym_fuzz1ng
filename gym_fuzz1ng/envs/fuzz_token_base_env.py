@@ -1,6 +1,8 @@
 import gym
 import numpy as np
 
+from gym import spaces
+
 import gym_fuzz1ng.coverage as coverage
 
 
@@ -16,10 +18,10 @@ class FuzzTokenBaseEnv(gym.Env):
         self.engine = coverage.Afl(
             self.target_path, launch_afl_forkserver=True,
         )
-        self.observation_space = gym.spaces.Box(
+        self.observation_space = spaces.Box(
             0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
         )
-        self.action_space = gym.spaces.Discrete(self.dict.size())
+        self.action_space = spaces.Discrete(self.dict.size())
         self.reset()
 
     def reset(self):
