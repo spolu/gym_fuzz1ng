@@ -29,7 +29,8 @@ class Coverage:
     def __init__(self, shm=None, verbose=False):
         self.crashes = 0
         self.transitions = {}
-        self.pathes = {}
+        self.count_pathes = {}
+        self.skip_pathes = {}
         self.verbose = verbose
 
         if shm is None:
@@ -54,20 +55,24 @@ class Coverage:
             if coverage_status == STATUS_CRASHED:
                 self.crashes = 1
         else:
-            x = xxhash.xxh64()
+            x_count = xxhash.xxh64()
+            x_skip = xxhash.xxh64()
 
             for i in range(1, PATH_MAP_SIZE):
                 if (coverage_pathes[i] != 0):
                     self.transitions[i] = coverage_pathes[i]
-                    x.update(str(i) + '-' + str(coverage_pathes[i]))
+                    x_count.update(str(i) + '-' + str(coverage_pathes[i]))
+                    x_skip.update(str(i))
 
             # print(">> COV: {}".format(self.transitions))
 
-            self.pathes[x.digest()] = 1
+            self.count_pathes[x_count.digest()] = 1
+            self.skip_pathes[x_skip.digest()] = 1
 
     def clean(self):
         self.transitions = {}
-        self.pathes = {}
+        self.count_pathes = {}
+        self.skip_pathes = {}
         self.crashes = 0
 
     def transition_count(self):
@@ -87,17 +92,27 @@ class Coverage:
             if transition not in self.transitions:
                 self.transitions[transition] = 0
             self.transitions[transition] += coverage.transitions[transition]
-        for path in coverage.pathes:
-            if path not in self.pathes:
-                self.pathes[path] = 0
-            self.pathes[path] += coverage.pathes[path]
+        for path in coverage.count_pathes:
+            if path not in self.count_pathes:
+                self.count_pathes[path] = 0
+            self.count_pathes[path] += coverage.count_pathes[path]
+        for path in coverage.skip_pathes:
+            if path not in self.skip_pathes:
+                self.skip_pathes[path] = 0
+            self.skip_pathes[path] += coverage.skip_pathes[path]
         self.crashes += coverage.crashes
 
-    def path_count(self):
-        return len(self.pathes)
+    def count_path_count(self):
+        return len(self.count_pathes)
 
-    def path_list(self):
-        return [p for p in self.pathes]
+    def skip_path_count(self):
+        return len(self.skip_pathes)
+
+    def count_path_list(self):
+        return [p for p in self.count_pathes]
+
+    def skip_path_list(self):
+        return [p for p in self.skip_pathes]
 
 
 """

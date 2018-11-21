@@ -47,9 +47,9 @@ class FuzzWordBaseEnv(gym.Env):
 
         c = self.engine.run(input_data)
 
-        old_path_count = self.total_coverage.path_count()
+        old_path_count = self.total_coverage.skip_path_count()
         self.total_coverage.add(c)
-        new_path_count = self.total_coverage.path_count()
+        new_path_count = self.total_coverage.skip_path_count()
 
         if old_path_count == new_path_count:
             done = True

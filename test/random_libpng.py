@@ -18,13 +18,13 @@ def main():
                "step={}/{}/{} current={}/{}/{} " +
                "total={}/{}/{} action={}").format(
                   reward, done,
-                  info['step_coverage'].path_count(),
+                  info['step_coverage'].skip_path_count(),
                   info['step_coverage'].transition_count(),
                   info['step_coverage'].crash_count(),
-                  info['current_coverage'].path_count(),
+                  info['current_coverage'].skip_path_count(),
                   info['current_coverage'].transition_count(),
                   info['current_coverage'].crash_count(),
-                  info['total_coverage'].path_count(),
+                  info['total_coverage'].skip_path_count(),
                   info['total_coverage'].transition_count(),
                   info['total_coverage'].crash_count(),
                   nxt,

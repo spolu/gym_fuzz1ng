@@ -26,7 +26,7 @@ def main():
         print(("STEP:" +
                "step={}/{}/{} " +
                "action={} transitions={}").format(
-                   info['step_coverage'].path_count(),
+                   info['step_coverage'].skip_path_count(),
                    info['step_coverage'].transition_count(),
                    info['step_coverage'].crash_count(),
                    i[:8],

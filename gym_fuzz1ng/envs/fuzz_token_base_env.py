@@ -42,9 +42,9 @@ class FuzzTokenBaseEnv(gym.Env):
         if int(action) == self.dict.eof() or \
                 len(self.input_data) >= self.max_input_size:
             eof = True
-            old_path_count = self.total_coverage.path_count()
+            old_path_count = self.total_coverage.skip_path_count()
             self.total_coverage.add(self.current_coverage)
-            new_path_count = self.total_coverage.path_count()
+            new_path_count = self.total_coverage.skip_path_count()
             if old_path_count == new_path_count:
                 done = True
         else:
