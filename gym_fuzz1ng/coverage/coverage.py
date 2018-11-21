@@ -96,6 +96,9 @@ class Coverage:
     def path_count(self):
         return len(self.pathes)
 
+    def path_list(self):
+        return [p for p in self.pathes]
+
 
 """
 AFL ENGINE
