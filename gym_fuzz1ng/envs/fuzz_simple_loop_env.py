@@ -7,7 +7,7 @@ from gym_fuzz1ng.envs.fuzz_word_base_env import FuzzWordBaseEnv
 
 class FuzzTokenSimpleLoopEnv(FuzzTokenBaseEnv):
     def __init__(self):
-        self.max_input_size = 16
+        self.max_input_size = 8
         self.target_path = gym_fuzz1ng.simple_loop_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [],
@@ -18,7 +18,7 @@ class FuzzTokenSimpleLoopEnv(FuzzTokenBaseEnv):
 
 class FuzzWordSimpleLoopEnv(FuzzWordBaseEnv):
     def __init__(self):
-        self.max_input_size = 16
+        self.max_input_size = 8
         self.target_path = gym_fuzz1ng.simple_loop_target_path()
         self.dict = coverage.Dictionary({
             'tokens': [],
