@@ -42,3 +42,20 @@ register(
     id='FuzzWordSimpleBits-v0',
     entry_point='gym_fuzz1ng.envs:FuzzWordSimpleBitsEnv',
 )
+
+
+def simple_loop_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/simple_loop-mod/simple_loop_afl',
+    )
+
+
+register(
+    id='FuzzTokenSimpleLoop-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzTokenSimpleLoopEnv',
+)
+register(
+    id='FuzzWordSimpleLoop-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzWordSimpleLoopEnv',
+)

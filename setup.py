@@ -30,6 +30,7 @@ setup(
             'afl-2.52b-mod/afl-2.52b/afl-forkserver',
             'libpng-1.6.34-mod/libpng_simple_fopen_afl',
             'simple_bits-mod/simple_bits_afl',
+            'simple_loop-mod/simple_loop_afl',
         ],
     },
     packages=[
