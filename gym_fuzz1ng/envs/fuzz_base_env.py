@@ -22,7 +22,7 @@ class FuzzBaseEnv(gym.Env):
             ), dtype='int32',
         )
         self.action_space = spaces.Box(
-            0, self.dict.size(), shape=(self.input_size,), dtype='int32',
+            0, self.dict.eof(), shape=(self.input_size,), dtype='int32',
         )
         self.reset()
 

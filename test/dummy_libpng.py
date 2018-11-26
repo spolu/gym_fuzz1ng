@@ -11,9 +11,9 @@ def main():
     c = coverage.Coverage()
 
     inputs = [
-        [1, 283] + [0] * 1022,
-        [283] + [0] * 1023,
-        [1, 283] + [0] * 1022,
+        [1, env.eof()] + [0] * 1022,
+        [env.eof()] + [0] * 1023,
+        [1, env.eof()] + [0] * 1022,
     ]
 
     for i in inputs:
