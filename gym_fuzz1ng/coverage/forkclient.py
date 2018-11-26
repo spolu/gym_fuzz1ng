@@ -117,7 +117,10 @@ class ForkClient:
                             ),
                         )
 
-                _clients[self.client_id] = True
+            else:
+                print("Skipping afl-forkserver start.")
+
+            _clients[self.client_id] = True
 
     def __del__(self):
         global _clients
