@@ -1,5 +1,5 @@
 import numpy as np
-import struct
+# import struct
 import xxhash
 
 from gym_fuzz1ng.coverage.forkclient import ForkClient
@@ -7,50 +7,21 @@ from gym_fuzz1ng.coverage.forkclient import STATUS_CRASHED
 
 PATH_MAP_SIZE = 2**16
 EDGE_MAP_SIZE = 2**8
-IPC_DATA_MAGIC = 0xdeadbeef
-
-'''
-    UINT32  ipc_data_size;      // sanity checks...
-    UINT32  status;             // status of the run
-    UINT8   pathes[PATH_MAP_SIZE];
-    UINT32  magic;              // sanity checks... TODO: get rid of it
-'''
-fmt_coverage = "=II" + str(PATH_MAP_SIZE) + "sI"
-
-
-def coverage_struct_size():
-    return struct.calcsize(fmt_coverage)
-
-
-# extract structure from format, compute only once
-IPC_DATA_SIZE = coverage_struct_size()
 
 
 class Coverage:
-    def __init__(self, shm=None, verbose=False):
+    def __init__(
+            self, coverage_status=None, coverage_data=None, verbose=False,
+    ):
         self.crashes = 0
         self.transitions = {}
         self.count_pathes = {}
         self.skip_pathes = {}
         self.verbose = verbose
 
-        if shm is None:
+        if coverage_status is None:
             return
-
-        # sanity check #1 (preload): nothing went wrong with System V ipc shm
-        assert (len(shm) == IPC_DATA_SIZE)
-
-        # load structure
-        struct_coverage = struct.unpack_from(fmt_coverage, shm)
-        coverage_ipc_data_size = struct_coverage[0]
-        coverage_status = struct_coverage[1]
-        coverage_pathes = struct_coverage[2]
-        coverage_magic = struct_coverage[3]
-
-        # sanity check #1 (postload): struct sizes (C / Python) match
-        assert (coverage_ipc_data_size == IPC_DATA_SIZE)
-        # sanity check #2 (postload): corruption of some kind
-        assert (coverage_magic == IPC_DATA_MAGIC)
+        assert coverage_data is not None
 
         if (coverage_status != 0):
             if coverage_status == STATUS_CRASHED:
@@ -59,10 +30,19 @@ class Coverage:
             x_count = xxhash.xxh64()
             x_skip = xxhash.xxh64()
 
+            # for i in range(1, int(PATH_MAP_SIZE/8)):
+            #     q = struct.unpack("<Q", coverage_data[i:i+8])[0]
+            #     if q != 0:
+            #         for j in range(8):
+            #             k = 8*i+j
+            #             self.transitions[k] = coverage_data[k]
+            #             x_count.update(str(k) + '-' + str(coverage_data[k]))
+            #             x_skip.update(str(k))
+
             for i in range(1, PATH_MAP_SIZE):
-                if (coverage_pathes[i] != 0):
-                    self.transitions[i] = coverage_pathes[i]
-                    x_count.update(str(i) + '-' + str(coverage_pathes[i]))
+                if (coverage_data[i] != 0):
+                    self.transitions[i] = coverage_data[i]
+                    x_count.update(str(i) + '-' + str(coverage_data[i]))
                     x_skip.update(str(i))
 
             # print(">> COV: {}".format(self.transitions))
@@ -131,18 +111,8 @@ class Afl:
     def run(self, input_data):
         (status, data) = self.fc.run(input_data)
 
-        # create a fake structure and use IPC constructor...
-        # very dirty, I know
-        '''
-            UINT32  ipc_data_size;     // sanity checks...
-            UINT32  status;            // status of the run
-            UINT8   pathes[PATH_MAP_SIZE];
-            UINT32  magic;             // sanity checks... TODO: get rid of it.
-        '''
-
-        fake_shm = struct.pack(
-            fmt_coverage, IPC_DATA_SIZE, status, data, IPC_DATA_MAGIC,
+        local_coverage = Coverage(
+            coverage_status=status, coverage_data=data, verbose=self.verbose,
         )
-        local_coverage = Coverage(fake_shm, self.verbose)
 
         return local_coverage
