@@ -5,13 +5,13 @@ known libraries (libpng for now) as well as simpler examples.
 
 The action space is the following:
 ```
-Box(low=0, high=DICT_SIZE, shape=(INPUT_SIZE,))
+Box(low=0, high=DICT_SIZE-1, shape=(INPUT_SIZE,))
 ```
 
 `DICT_SIZE` and `INPUT_SIZE` depend on the environnment and the underlying
 program to fuzz:
 - `DICT_SIZE` is the size of the dictionnary used to fuzz the program. `EOF` is
-  represented by `DICT_SIZE` and accessible by the `eof()` method on the
+  represented by `DICT_SIZE-1` and accessible by the `eof()` method on the
   environment.
 - `INPUT_SIZE` is the input submitted for fuzzing it is fixed for each
   environment and represents a maximal size for inputs to fuzz; smaller inputs
@@ -68,7 +68,7 @@ Fuzzing environment for libpng-1.6.34 (recent).
 Fuzzing environment for the `simple_bits` executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_bits-mod/simple_bits_afl.c)).
 
-- **action_space**: `Box(low=0, high=257, shape=(64,))` dictionary composed
+- **action_space**: `Box(low=0, high=256, shape=(64,))` dictionary composed
   all 256 bytes and EOF. Maximum input size is 64.
 
 ### `FuzzSimpleLoop-v0`
@@ -76,5 +76,5 @@ Fuzzing environment for the `simple_bits` executable (see
 Fuzzing environment for the `simple_loop` executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_loop-mod/simple_loop_afl.c)).
 
-- **action_space**: `Box(low=0, high=257, shape=(8,))` dictionary composed
+- **action_space**: `Box(low=0, high=256, shape=(8,))` dictionary composed
   all 256 bytes and EOF. Maximum input size is 8.
