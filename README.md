@@ -28,9 +28,9 @@ The observation space is the following:
 Box(low=0, high=255, shape=(2, 256, 256), dtype='int32')
 ```
 
-The coverage computed by the underlying excecution engine is destructive and
-assigns a random integer in `[0, 255]` to each simple block in the underlying
-binary. The coverage is then represented by a `256x256` matrix of `int8`
+To compute coverage, the the underlying excecution engine assigns a random
+integer in `[0, 255]` to each simple block in the targeted binary (generally
+destructive). The coverage is then represented by a `256x256` matrix of `int8`
 representing the number of time a transition was executed (note that this
 differs from how afl exactly computes coverage). Since `int8` are used for
 efficiency, the number of transitions can only be within `[0, 255]` and wraps
@@ -38,7 +38,7 @@ otherwise.
 
 Finally there are two such matrices returned as part of the observation, the
 first one represents the total coverage over the current game and the second
-one for the last step execution.
+one the coverage from the last step execution.
 
 ## Installation
 
