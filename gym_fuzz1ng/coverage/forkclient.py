@@ -194,14 +194,17 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 if __name__ == '__main__':
-    f = ForkClient(gym_fuzz1ng.libpng_target_path())
+    f1 = ForkClient(gym_fuzz1ng.libpng_target_path())
+    f2 = ForkClient(gym_fuzz1ng.libpng_target_path())
+
     start = time.time()
 
-    for i in range(50000):
-        f.run(b"HELLO\x00")
+    for i in range(10000):
+        f1.run(b"HELLO\x00")
+        f2.run(b"HELLO\x00")
 
     end = time.time()
 
     print("Done {}".format(
-        int(50000 / (end - start)),
+        int(20000 / (end - start)),
     ))
