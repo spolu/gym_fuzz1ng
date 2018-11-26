@@ -5,7 +5,7 @@ known libraries (libpng for now) as well as simpler examples.
 
 The action space is the following:
 ```
-Box(low=0, high=DICT_SIZE-1, shape=(INPUT_SIZE,))
+Box(low=0, high=DICT_SIZE-1, shape=(INPUT_SIZE,), dtype='int32')
 ```
 
 `DICT_SIZE` and `INPUT_SIZE` depend on the environnment and the underlying
@@ -25,7 +25,7 @@ The environment simulates the following game:
 
 The observation space is the following:
 ```
-Box(low=0, high=255, shape=(2, 256, 256))
+Box(low=0, high=255, shape=(2, 256, 256), dtype='int32')
 ```
 
 The coverage computed by the underlying excecution engine is destructive and
