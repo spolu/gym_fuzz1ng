@@ -18,12 +18,8 @@ def libpng_target_path():
 
 
 register(
-    id='FuzzTokenLibPNG-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzTokenLibPNGEnv',
-)
-register(
-    id='FuzzWordLibPNG-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzWordLibPNGEnv',
+    id='FuzzLibPNG-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzLibPNGEnv',
 )
 
 
@@ -35,12 +31,8 @@ def simple_bits_target_path():
 
 
 register(
-    id='FuzzTokenSimpleBits-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzTokenSimpleBitsEnv',
-)
-register(
-    id='FuzzWordSimpleBits-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzWordSimpleBitsEnv',
+    id='FuzzSimpleBits-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzSimpleBitsEnv',
 )
 
 
@@ -52,10 +44,6 @@ def simple_loop_target_path():
 
 
 register(
-    id='FuzzTokenSimpleLoop-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzTokenSimpleLoopEnv',
-)
-register(
-    id='FuzzWordSimpleLoop-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzWordSimpleLoopEnv',
+    id='FuzzSimpleLoop-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzSimpleLoopEnv',
 )

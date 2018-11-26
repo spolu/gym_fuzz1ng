@@ -3,19 +3,42 @@
 Fuzzing gym environment based on afl (american fuzzy lop) for a variety of well
 known libraries (libpng for now) as well as simpler examples.
 
-The action space of these environments is discrete with size based on the
-dictionary used for fuzzing. The size of the action space therefore varies from
-one environment to another.
+The action space is the following:
+```
+Box(low=0, high=DICT_SIZE, shape=(INPUT_SIZE,))
+```
+
+`DICT_SIZE` and `INPUT_SIZE` depend on the environnment and the underlying
+program to fuzz:
+- `DICT_SIZE` is the size of the dictionnary used to fuzz the program. `EOF` is
+  represented by `DICT_SIZE` and accessible by the `eof()` method on the
+  environment.
+- `INPUT_SIZE` is the input submitted for fuzzing it is fixed for each
+  environment and represents a maximal size for inputs to fuzz; smaller inputs
+  can be represented using `EOF`.
 
 The environment simulates the following game:
 
-- each action appends a token from the dictionary to the current input
-- the current input is run and the additional coverage received from the token
-  addition is returned as reward (might be 0).
-- if EOF is received or the input goes beyond a maximum size, the input data
-  coverage is compared to the total coverage of the game. If no new coverage
-  was discovered from the previous input data (since last EOF) the game is
-  ended.
+- each action submits a full input for fuzzing and returns the number of unique
+  transitions executed as reward.
+- if no new coverage is discovered by an input, the game is ended.
+
+The observation space is the following:
+```
+Box(low=0, high=255, shape=(2, 256, 256))
+```
+
+The coverage computed by the underlying excecution engine is destructive and
+assigns a random integer in `[0, 255]` to each simple block in the underlying
+binary. The coverage is then represented by a `256x256` matrix of `int8`
+representing the number of time a transition was executed (note that this
+differs from how afl exactly computes coverage). Since `int8` are used for
+efficiency, the number of transitions can only be within `[0, 255]` and wraps
+otherwise.
+
+Finally there are two such matrices returned as part of the observation, the
+first one represents the total coverage over the current game and the second
+one for the last step execution.
 
 ## Installation
 
@@ -28,7 +51,7 @@ pip install .
 echo core >/proc/sys/kernel/core_pattern
 
 # You can then test that everything works by running our dummy example.
-python dummy_word_simple_bits.py
+python dummy_simple_bits.py
 ```
 
 ## Available environments
@@ -37,21 +60,21 @@ python dummy_word_simple_bits.py
 
 Fuzzing environment for libpng-1.6.34 (recent).
 
-- **action_space**: `Discrete(283)` dictionary composed of magic tokens, all
-  255 bytes and EOF.
+- **action_space**: `Box(low=0, high=283, shape=(1024,))` dictionary composed
+  of magic tokens, all 255 bytes and EOF. Maximum input size is 1024.
 
 ### `FuzzSimpleBits-v0`
 
-Fuzzing environment for the simple_bits executable (see
+Fuzzing environment for the `simple_bits` executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_bits-mod/simple_bits_afl.c)).
 
-- **action_space**: `Discrete(256)` dictionary composed of all 255 bytes and
-  EOF.
+- **action_space**: `Box(low=0, high=257, shape=(64,))` dictionary composed
+  all 256 bytes and EOF. Maximum input size is 64.
 
 ### `FuzzSimpleLoop-v0`
 
-Fuzzing environment for the simple_loop executable (see
+Fuzzing environment for the `simple_loop` executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/simple_loop-mod/simple_loop_afl.c)).
 
-- **action_space**: `Diescrete(256)` dictionary composed of all 255 bytes and
-  EOF.
+- **action_space**: `Box(low=0, high=257, shape=(8,))` dictionary composed
+  all 256 bytes and EOF. Maximum input size is 8.

@@ -50,7 +50,7 @@ _next_client_id = 0
 
 
 class ForkClient:
-    def __init__(self, target_path, launch_afl_forkserver=True):
+    def __init__(self, target_path):
         global _lock
         global _process
         global _target_path
@@ -60,6 +60,11 @@ class ForkClient:
         global _pong_sem
         global _clients
         global _next_client_id
+
+        if _shm is None:
+            launch_afl_forkserver = True
+        else:
+            launch_afl_forkserver = False
 
         with _lock:
             self.client_id = _next_client_id
@@ -192,11 +197,11 @@ if __name__ == '__main__':
     f = ForkClient(gym_fuzz1ng.libpng_target_path())
     start = time.time()
 
-    for i in range(10000):
+    for i in range(50000):
         f.run(b"HELLO\x00")
 
     end = time.time()
 
     print("Done {}".format(
-        int(10000 / (end - start)),
+        int(50000 / (end - start)),
     ))

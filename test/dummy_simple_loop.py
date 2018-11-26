@@ -4,7 +4,7 @@ import numpy as np
 
 
 def main():
-    env = gym.make('FuzzWordSimpleLoop-v0')
+    env = gym.make('FuzzSimpleLoop-v0')
 
     env.reset()
 

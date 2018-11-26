@@ -1,11 +1,5 @@
-from gym_fuzz1ng.envs.fuzz_token_base_env import FuzzTokenBaseEnv
-from gym_fuzz1ng.envs.fuzz_word_base_env import FuzzWordBaseEnv
+from gym_fuzz1ng.envs.fuzz_base_env import FuzzBaseEnv
 
-from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzTokenLibPNGEnv
-from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzWordLibPNGEnv
-
-from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzTokenSimpleBitsEnv
-from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzWordSimpleBitsEnv
-
-from gym_fuzz1ng.envs.fuzz_simple_loop_env import FuzzTokenSimpleLoopEnv
-from gym_fuzz1ng.envs.fuzz_simple_loop_env import FuzzWordSimpleLoopEnv
+from gym_fuzz1ng.envs.fuzz_libpng_env import FuzzLibPNGEnv
+from gym_fuzz1ng.envs.fuzz_simple_bits_env import FuzzSimpleBitsEnv
+from gym_fuzz1ng.envs.fuzz_simple_loop_env import FuzzSimpleLoopEnv

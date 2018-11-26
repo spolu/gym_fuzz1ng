@@ -1,40 +1,38 @@
 import gym
 import gym_fuzz1ng.coverage as coverage
+import numpy as np
 
 
 def main():
-    env = gym.make('FuzzTokenLibPNG-v0')
+    env = gym.make('FuzzLibPNG-v0')
 
     env.reset()
     c = coverage.Coverage()
 
     inputs = [
-        78, 89, 283,
-        0, 250, 283,
-        0, 250, 1, 283,
-        79, 283,
+        [1, 283] + [0] * 1022,
+        [283] + [0] * 1023,
+        [1, 283] + [0] * 1022,
     ]
+
     for i in inputs:
-        obs, reward, done, info = env.step(i)
+        obs, reward, done, info = env.step(np.array(i))
         c.add(info['step_coverage'])
 
         print(("STEP: reward={} done={} " +
-               "step={}/{}/{} current={}/{}/{} " +
-               "total={}/{}/{} sum={}/{}/{} action={}").format(
+               "step={}/{}/{} total={}/{}/{} " +
+               "sum={}/{}/{} action={}").format(
                   reward, done,
                   info['step_coverage'].skip_path_count(),
                   info['step_coverage'].transition_count(),
                   info['step_coverage'].crash_count(),
-                  info['current_coverage'].skip_path_count(),
-                  info['current_coverage'].transition_count(),
-                  info['current_coverage'].crash_count(),
                   info['total_coverage'].skip_path_count(),
                   info['total_coverage'].transition_count(),
                   info['total_coverage'].crash_count(),
                   c.skip_path_count(),
                   c.transition_count(),
                   c.crash_count(),
-                  i,
+                  i[:13],
               ))
         if done:
             env.reset()

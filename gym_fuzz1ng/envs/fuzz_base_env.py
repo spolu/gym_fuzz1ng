@@ -6,21 +6,23 @@ from gym import spaces
 import gym_fuzz1ng.coverage as coverage
 
 
-class FuzzWordBaseEnv(gym.Env):
+class FuzzBaseEnv(gym.Env):
     def __init__(self):
-        # Classes that inherit FuzzWordBase must define before calling this
+        # Classes that inherit FuzzBase must define before calling this
         # constructor:
-        # - self.max_input_size
+        # - self.input_size
         # - self.dict
         # - self.target_path
         self.engine = coverage.Afl(
-            self.target_path, launch_afl_forkserver=True,
+            self.target_path
         )
         self.observation_space = spaces.Box(
-            0, np.inf, shape=(2, coverage.PATH_MAP_SIZE), dtype='int32',
+            0, 255, shape=(
+                2, coverage.EDGE_MAP_SIZE, coverage.EDGE_MAP_SIZE
+            ), dtype='int32',
         )
         self.action_space = spaces.Box(
-            0, self.dict.size(), shape=(self.max_input_size,), dtype='int32',
+            0, self.dict.size(), shape=(self.input_size,), dtype='int32',
         )
         self.reset()
 
@@ -40,7 +42,7 @@ class FuzzWordBaseEnv(gym.Env):
 
         input_data = b""
 
-        for i in range(self.max_input_size):
+        for i in range(self.input_size):
             if int(action[i]) == self.dict.eof():
                 break
             input_data += self.dict.bytes(int(action[i]))
@@ -70,3 +72,6 @@ class FuzzWordBaseEnv(gym.Env):
 
     def render(self, mode='human', close=False):
         pass
+
+    def eof(self):
+        return self.dict.eof()

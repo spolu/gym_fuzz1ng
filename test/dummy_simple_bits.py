@@ -4,7 +4,7 @@ import numpy as np
 
 
 def main():
-    env = gym.make('FuzzWordSimpleBits-v0')
+    env = gym.make('FuzzSimpleBits-v0')
 
     env.reset()
     c = coverage.Coverage()

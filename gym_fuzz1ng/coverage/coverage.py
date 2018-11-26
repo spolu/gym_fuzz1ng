@@ -6,6 +6,7 @@ from gym_fuzz1ng.coverage.forkclient import ForkClient
 from gym_fuzz1ng.coverage.forkclient import STATUS_CRASHED
 
 PATH_MAP_SIZE = 2**16
+EDGE_MAP_SIZE = 2**8
 IPC_DATA_MAGIC = 0xdeadbeef
 
 '''
@@ -82,9 +83,9 @@ class Coverage:
         return self.crashes
 
     def observation(self):
-        v = np.zeros(PATH_MAP_SIZE)
+        v = np.zeros((EDGE_MAP_SIZE, EDGE_MAP_SIZE))
         for i in self.transitions:
-            v[i] = self.transitions[i]
+            v[i % EDGE_MAP_SIZE][int(i / EDGE_MAP_SIZE)] = self.transitions[i]
         return v
 
     def add(self, coverage):
@@ -121,13 +122,11 @@ AFL ENGINE
 
 
 class Afl:
-    def __init__(self, target_path, verbose=False, launch_afl_forkserver=True):
+    def __init__(self, target_path, verbose=False):
         global client_id
         self.verbose = verbose
 
-        self.fc = ForkClient(
-            target_path, launch_afl_forkserver=launch_afl_forkserver,
-        )
+        self.fc = ForkClient(target_path)
 
     def run(self, input_data):
         (status, data) = self.fc.run(input_data)
