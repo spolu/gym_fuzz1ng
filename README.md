@@ -1,7 +1,10 @@
 # gym-fuzz1ng
 
-Fuzzing gym environment based on afl (american fuzzy lop) for a variety of well
-known libraries (libpng for now) as well as simpler examples.
+OpenAI Gym[0] environment for binary fuzzing of a variety of libraries (libpng
+for now), executables, as well as simpler examples.
+
+The environment's engine is based on american fuzzy lop[1] (afl) and capable of
+thousands of executions per seconds for moderaltely sized executables.
 
 The action space is the following:
 ```
@@ -23,6 +26,10 @@ The environment simulates the following game:
   transitions executed as reward.
 - if no new coverage is discovered by an input, the game is ended.
 
+(It is possible to simply call `step` independently of whether the game is done
+or not if you're just interested in easily executing binaries and retrieving
+the associated coverage from Python. See also `step_raw`[2]).
+
 The observation space is the following:
 ```
 Box(low=0, high=255, shape=(256, 256), dtype='int32')
@@ -35,6 +42,10 @@ time a transition was executed (note that this differs from how afl computes
 coverage). Since `int8` are used for efficiency, the number of transitions can
 only be within `[0, 255]` and wraps otherwise. This coverage matrix for the
 last step execution is exactly what is returned as observation.
+
+[0] [https://gym.openai.com/]
+[1] [http://lcamtuf.coredump.cx/afl/]
+[2] [https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/envs/fuzz_base_env.py]
 
 ## Installation
 
