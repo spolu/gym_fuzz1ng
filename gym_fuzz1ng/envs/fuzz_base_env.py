@@ -29,11 +29,8 @@ class FuzzBaseEnv(gym.Env):
         self.total_coverage = coverage.Coverage()
         return coverage.Coverage().observation()
 
-    def step(self, action):
+    def step_raw(self, action):
         assert self.action_space.contains(action)
-
-        reward = 0.0
-        done = False
 
         input_data = b""
 
@@ -44,6 +41,23 @@ class FuzzBaseEnv(gym.Env):
 
         c = self.engine.run(input_data)
 
+        if c.crash_count() > 0:
+            print("CRASH {}".format(input_data))
+
+        return {
+            "step_coverage": c,
+            "input_data": input_data,
+        }
+
+    def step(self, action):
+        info = self.step_raw(action)
+
+        reward = 0.0
+        done = False
+        c = info['step_coverage']
+
+        reward = c.transition_count()
+
         old_path_count = self.total_coverage.skip_path_count()
         self.total_coverage.add(c)
         new_path_count = self.total_coverage.skip_path_count()
@@ -51,16 +65,9 @@ class FuzzBaseEnv(gym.Env):
         if old_path_count == new_path_count:
             done = True
 
-        reward = c.transition_count()
+        info['total_coverage'] = self.total_coverage,
 
-        if c.crash_count() > 0:
-            print("CRASH {}".format(input_data))
-
-        return c.observation(), reward, done, {
-            "step_coverage": c,
-            "total_coverage": self.total_coverage,
-            "input_data": input_data,
-        }
+        return c.observation(), reward, done, info
 
     def render(self, mode='human', close=False):
         pass
