@@ -30,22 +30,13 @@ class Coverage:
             x_count = xxhash.xxh64()
             x_skip = xxhash.xxh64()
 
-            # for i in range(1, int(PATH_MAP_SIZE/8)):
-            #     q = struct.unpack("<Q", coverage_data[i:i+8])[0]
-            #     if q != 0:
-            #         for j in range(8):
-            #             k = 8*i+j
-            #             self.transitions[k] = coverage_data[k]
-            #             x_count.update(str(k) + '-' + str(coverage_data[k]))
-            #             x_skip.update(str(k))
-
-            for i in range(1, PATH_MAP_SIZE):
-                if (coverage_data[i] != 0):
-                    self.transitions[i] = coverage_data[i]
-                    x_count.update(str(i) + '-' + str(coverage_data[i]))
-                    x_skip.update(str(i))
-
-            # print(">> COV: {}".format(self.transitions))
+            for i in range(0, PATH_MAP_SIZE):
+                if (coverage_data[3*i+2] == 0):
+                    break
+                j = coverage_data[3*i+0] + coverage_data[3*i+1] * EDGE_MAP_SIZE
+                self.transitions[j] = coverage_data[3*i+2]
+                x_count.update(str(j) + '-' + str(self.transitions[j]))
+                x_skip.update(str(j))
 
             self.count_pathes[x_count.digest()] = 1
             self.skip_pathes[x_skip.digest()] = 1
@@ -83,13 +74,13 @@ class Coverage:
             self.skip_pathes[path] += coverage.skip_pathes[path]
         self.crashes += coverage.crashes
 
-    def count_path_count(self):
+    def path_count(self):
         return len(self.count_pathes)
 
     def skip_path_count(self):
         return len(self.skip_pathes)
 
-    def count_path_list(self):
+    def path_list(self):
         return [p for p in self.count_pathes]
 
     def skip_path_list(self):
