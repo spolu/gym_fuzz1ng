@@ -44,7 +44,9 @@ only be within `[0, 255]` and wraps otherwise. This coverage matrix for the
 last step execution is exactly what is returned as observation.
 
 [0] [https://gym.openai.com/]
+
 [1] [http://lcamtuf.coredump.cx/afl/]
+
 [2] [https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/envs/fuzz_base_env.py]
 
 ## Installation
