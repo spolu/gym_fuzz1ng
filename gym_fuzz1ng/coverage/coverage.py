@@ -39,11 +39,13 @@ class Coverage:
             #             x_count.update(str(k) + '-' + str(coverage_data[k]))
             #             x_skip.update(str(k))
 
-            for i in range(1, PATH_MAP_SIZE):
-                if (coverage_data[i] != 0):
-                    self.transitions[i] = coverage_data[i]
-                    x_count.update(str(i) + '-' + str(coverage_data[i]))
-                    x_skip.update(str(i))
+            for i in range(0, PATH_MAP_SIZE):
+                if (coverage_data[3*i+2] == 0):
+                    break
+                j = coverage_data[3*i+0] + coverage_data[3*i+1] * EDGE_MAP_SIZE
+                self.transitions[j] = coverage_data[3*i+2]
+                x_count.update(str(j) + '-' + str(self.transitions[j]))
+                x_skip.update(str(j))
 
             # print(">> COV: {}".format(self.transitions))
 

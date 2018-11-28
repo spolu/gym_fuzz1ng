@@ -23,7 +23,7 @@ typedef struct ping_msg_hdr {
 typedef struct pong_msg {
     u32 msgid;
     u32 status;
-    u8  trace_bits[MAP_SIZE];
+    u8  trace_bits[3*MAP_SIZE];
 } PONG_MSG;
 
 #pragma pack()

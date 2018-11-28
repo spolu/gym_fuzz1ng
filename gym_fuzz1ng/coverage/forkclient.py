@@ -151,16 +151,16 @@ class ForkClient:
 
     def get_pong(self, msg):
         """
-        .------------------------.
-        |      PONG message      |
-        |------------------------|
-        | uint32 msgid (same)    |
-        | uint32 status          |
-        | uint8  input[MAP_SIZE] |
-        '------------------------'
+        .--------------------------.
+        |      PONG message        |
+        |--------------------------|
+        | uint32 msgid (same)      |
+        | uint32 status            |
+        | uint8  input[3*MAP_SIZE] |
+        '--------------------------'
         """
         (msgid, status) = struct.unpack(_pong_struc, msg[:_pong_struc_size])
-        data = msg[_pong_struc_size:_pong_struc_size+MAP_SIZE]
+        data = msg[_pong_struc_size:_pong_struc_size+3*MAP_SIZE]
 
         return (msgid, status, data)
 
@@ -197,14 +197,12 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 if __name__ == '__main__':
-    f1 = ForkClient(gym_fuzz1ng.libpng_target_path())
-    f2 = ForkClient(gym_fuzz1ng.libpng_target_path())
+    f1 = ForkClient(gym_fuzz1ng.simple_loop_target_path())
 
     start = time.time()
 
-    for i in range(10000):
-        f1.run(b"HELLO\x00")
-        f2.run(b"HELLO\x00")
+    for i in range(20000):
+        _, _ = f1.run(b"\x42\x04\x00")
 
     end = time.time()
 

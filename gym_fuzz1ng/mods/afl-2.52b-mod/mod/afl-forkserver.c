@@ -1858,7 +1858,19 @@ int main(int argc, char** argv) {
     // Craft a pong response
     pong_msg.msgid = ping_msg_hdr->msgid;
     pong_msg.status = status;
-    memcpy(&pong_msg.trace_bits[0], trace_bits, MAP_SIZE);
+
+    //memcpy(&pong_msg.trace_bits[0], trace_bits, MAP_SIZE);
+    u32 i = 0;
+    u32 j = 0;
+
+    for (i =0; i < MAP_SIZE; i++) {
+      if (trace_bits[i] != 0) {
+        pong_msg.trace_bits[3*j+0] = (u8)(i % (1 << 8));
+        pong_msg.trace_bits[3*j+1] = (u8)(i / (1 << 8));
+        pong_msg.trace_bits[3*j+2] = trace_bits[i];
+        j++;
+      }
+    }
 
     // copies to shared_mem
     memset(shared_mem_ptr, 0, SHM_SIZE);
