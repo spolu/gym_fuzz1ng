@@ -1,5 +1,4 @@
 import gym
-import numpy as np
 
 from gym import spaces
 
@@ -28,11 +27,7 @@ class FuzzBaseEnv(gym.Env):
 
     def reset(self):
         self.total_coverage = coverage.Coverage()
-
-        return np.stack([
-            self.total_coverage.observation(),
-            coverage.Coverage().observation(),
-        ])
+        return coverage.Coverage().observation()
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -61,10 +56,7 @@ class FuzzBaseEnv(gym.Env):
         if c.crash_count() > 0:
             print("CRASH {}".format(input_data))
 
-        return np.stack([
-            self.total_coverage.observation(),
-            c.observation(),
-        ]), reward, done, {
+        return c.observation(), reward, done, {
             "step_coverage": c,
             "total_coverage": self.total_coverage,
             "input_data": input_data,
