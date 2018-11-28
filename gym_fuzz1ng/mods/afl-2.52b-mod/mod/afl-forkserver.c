@@ -1863,6 +1863,8 @@ int main(int argc, char** argv) {
     u32 i = 0;
     u32 j = 0;
 
+    memset(&(pong_msg.trace_bits), 0, 3*MAP_SIZE);
+
     for (i =0; i < MAP_SIZE; i++) {
       if (trace_bits[i] != 0) {
         pong_msg.trace_bits[3*j+0] = (u8)(i % (1 << 8));

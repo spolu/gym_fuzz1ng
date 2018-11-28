@@ -27,7 +27,7 @@ STATUS_HANGED = 0x40000000
 STATUS_ERROR = 0x20000000
 
 SHM_SIZE = max(
-    MAP_SIZE + _pong_struc_size,
+    3*MAP_SIZE + _pong_struc_size,
     MAX_INPUT_SIZE + _ping_struc_hdr_size,
 )
 
