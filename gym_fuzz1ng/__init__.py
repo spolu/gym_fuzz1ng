@@ -57,34 +57,34 @@ def checksum_k_n_target_path():
 
 
 register(
-    id='FuzzChecksum_1_2-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_1_2Env',
-)
-register(
     id='FuzzChecksum_2_2-v0',
     entry_point='gym_fuzz1ng.envs:FuzzChecksum_2_2Env',
-)
-register(
-    id='FuzzChecksum_3_2-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_3_2Env',
 )
 register(
     id='FuzzChecksum_4_2-v0',
     entry_point='gym_fuzz1ng.envs:FuzzChecksum_4_2Env',
 )
 register(
-    id='FuzzChecksum_1_3-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_1_3Env',
+    id='FuzzChecksum_8_2-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_8_2Env',
 )
 register(
-    id='FuzzChecksum_2_3-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_2_3Env',
+    id='FuzzChecksum_2_4-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_2_4Env',
 )
 register(
-    id='FuzzChecksum_3_3-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_3_3Env',
+    id='FuzzChecksum_4_4-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_4_4Env',
 )
 register(
-    id='FuzzChecksum_4_3-v0',
-    entry_point='gym_fuzz1ng.envs:FuzzChecksum_4_3Env',
+    id='FuzzChecksum_8_4-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_8_4Env',
+)
+register(
+    id='FuzzChecksum_2_8-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_2_8Env',
+)
+register(
+    id='FuzzChecksum_8_8-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzChecksum_8_8Env',
 )

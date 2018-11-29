@@ -14,10 +14,10 @@
 
 
 
-unsigned char chksum8(const unsigned char *buffer, size_t len)
+unsigned char chksum8(const unsigned char *buffer, unsigned int base, size_t len)
 {
   unsigned int sum;
-  for ( sum = 0 ; len != 0 ; len-- )
+  for ( sum = base ; len != 0 ; len-- )
     sum += *(buffer++);
   return (unsigned char)sum;
 }
@@ -26,10 +26,11 @@ void vulnerable(unsigned char* buffer, int chksum_count, int chksum_length)
 {
   int success_count = 0;
   int magic_value = 0;
+  int base = 42;
 
   for(int i = 0; i < chksum_count; i++) {
     int pos = i * (chksum_length + 1);
-    if(buffer[pos] == chksum8(buffer+(pos+1), chksum_length)) {
+    if(buffer[pos] == chksum8(buffer+(pos+1), base+i, chksum_length)) {
       success_count += 1;
 
       if(i == 0) {
