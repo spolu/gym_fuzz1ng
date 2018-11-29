@@ -65,7 +65,7 @@ class FuzzBaseEnv(gym.Env):
         if old_path_count == new_path_count:
             done = True
 
-        info['total_coverage'] = self.total_coverage,
+        info['total_coverage'] = self.total_coverage
 
         return c.observation(), reward, done, info
 
