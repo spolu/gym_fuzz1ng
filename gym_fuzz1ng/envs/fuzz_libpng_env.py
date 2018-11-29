@@ -8,6 +8,7 @@ class FuzzLibPNGEnv(FuzzBaseEnv):
     def __init__(self):
         self.input_size = 1024
         self.target_path = gym_fuzz1ng.libpng_target_path()
+        self.args = []
         self.dict = coverage.Dictionary({
             'tokens': [
                 b"\x89PNG\x0d\x0a\x1a\x0a",

@@ -66,13 +66,22 @@ $(SIMPLE_LOOP_MOD)/simple_loop_afl:
 	cd $(SIMPLE_LOOP_MOD) && $(AFL_GCC) simple_loop_afl.c \
 	  -o simple_loop_afl -lz -lm
 
+# CHECKSUM_K_N
+
+CHECKSUM_K_N_MOD=checksum_k_n-mod
+
+$(CHECKSUM_K_N_MOD)/checksum_k_n_afl:
+	@echo " **** Building libpng_checksum_k_n_afl"
+	cd $(CHECKSUM_K_N_MOD) && $(AFL_GCC) checksum_k_n_afl.c \
+	  -o checksum_k_n_afl -lz -lm
 
 # ALL
 
 all: $(AFL_DIR)/afl-fuzz \
   $(LIBPNG_DIR)/$(LIBPNG_A_PATH) $(LIBPNG_MOD)/libpng_simple_fopen_afl \
   $(SIMPLE_BITS_MOD)/simple_bits_afl \
-  $(SIMPLE_LOOP_MOD)/simple_loop_afl
+  $(SIMPLE_LOOP_MOD)/simple_loop_afl \
+  $(CHECKSUM_K_N_MOD)/checksum_k_n_afl
 
 clean:
 	rm -rf $(AFL_DIR)
@@ -82,3 +91,4 @@ clean:
 	rm -rf $(LIBPNG_MOD)/libpng_simple_fopen_afl
 	rm -rf $(SIMPLE_BITS_MOD)/simple_bits_afl
 	rm -rf $(SIMPLE_LOOP_MOD)/simple_loop_afl
+	rm -rf $(CHECKSUM_K_N_MOD)/checksum_k_n_afl

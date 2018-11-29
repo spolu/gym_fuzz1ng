@@ -8,6 +8,7 @@ class FuzzSimpleBitsEnv(FuzzBaseEnv):
     def __init__(self):
         self.input_size = 64
         self.target_path = gym_fuzz1ng.simple_bits_target_path()
+        self.args = []
         self.dict = coverage.Dictionary({
             'tokens': [],
             'bytes': True,
