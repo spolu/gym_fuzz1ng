@@ -55,7 +55,7 @@ int main(int argc, char **argv)
   char buffer[DATA_SIZE_MAX];
 
   if (argc < 2) {
-    printf("usage: simple_bits <file_in>\n");
+    printf("usage: simple_loop <file_in>\n");
     exit(-2);
   }
 

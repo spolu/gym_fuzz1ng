@@ -12,9 +12,9 @@ class FuzzBaseEnv(gym.Env):
         # - self.input_size
         # - self.dict
         # - self.target_path
-        self.engine = coverage.Afl(
-            self.target_path
-        )
+        # - self.args
+        self.engine = coverage.Afl(self.target_path, args=self.args)
+
         self.observation_space = spaces.Box(
             0, 255, shape=(
                 2, coverage.EDGE_MAP_SIZE, coverage.EDGE_MAP_SIZE
@@ -65,7 +65,7 @@ class FuzzBaseEnv(gym.Env):
         if old_path_count == new_path_count:
             done = True
 
-        info['total_coverage'] = self.total_coverage,
+        info['total_coverage'] = self.total_coverage
 
         return c.observation(), reward, done, info
 

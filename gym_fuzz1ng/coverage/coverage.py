@@ -93,11 +93,11 @@ AFL ENGINE
 
 
 class Afl:
-    def __init__(self, target_path, verbose=False):
+    def __init__(self, target_path, args=[], verbose=False):
         global client_id
         self.verbose = verbose
 
-        self.fc = ForkClient(target_path)
+        self.fc = ForkClient(target_path, args)
 
     def run(self, input_data):
         (status, data) = self.fc.run(input_data)

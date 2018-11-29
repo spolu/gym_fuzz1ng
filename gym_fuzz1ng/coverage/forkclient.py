@@ -50,7 +50,7 @@ _next_client_id = 0
 
 
 class ForkClient:
-    def __init__(self, target_path):
+    def __init__(self, target_path, args=[]):
         global _lock
         global _process
         global _target_path
@@ -89,8 +89,10 @@ class ForkClient:
                             '-f', afl_out_file,
                             '--',
                             target_path,
-                            '@@',
                         ]
+                        cmd += args
+                        cmd += ['@@']
+
                         _process = subprocess.Popen(
                             cmd,
                             env=env,
