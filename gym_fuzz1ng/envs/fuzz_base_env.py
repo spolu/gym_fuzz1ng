@@ -9,11 +9,11 @@ class FuzzBaseEnv(gym.Env):
     def __init__(self):
         # Classes that inherit FuzzBase must define before calling this
         # constructor:
-        # - self.input_size
-        # - self.dict
-        # - self.target_path
-        # - self.args
-        self.engine = coverage.Afl(self.target_path, args=self.args)
+        # - self._input_size
+        # - self._dict
+        # - self._target_path
+        # - self._args
+        self.engine = coverage.Afl(self._target_path, args=self._args)
 
         self.observation_space = spaces.Box(
             0, 255, shape=(
@@ -21,7 +21,7 @@ class FuzzBaseEnv(gym.Env):
             ), dtype='int32',
         )
         self.action_space = spaces.Box(
-            0, self.dict.eof(), shape=(self.input_size,), dtype='int32',
+            0, self._dict.eof(), shape=(self._input_size,), dtype='int32',
         )
         self.reset()
 
@@ -34,10 +34,10 @@ class FuzzBaseEnv(gym.Env):
 
         input_data = b""
 
-        for i in range(self.input_size):
-            if int(action[i]) == self.dict.eof():
+        for i in range(self._input_size):
+            if int(action[i]) == self._dict.eof():
                 break
-            input_data += self.dict.bytes(int(action[i]))
+            input_data += self._dict.bytes(int(action[i]))
 
         c = self.engine.run(input_data)
 
@@ -73,4 +73,10 @@ class FuzzBaseEnv(gym.Env):
         pass
 
     def eof(self):
-        return self.dict.eof()
+        return self._dict.eof()
+
+    def dict_size(self):
+        return self._dict.size()
+
+    def input_size(self):
+        return self._input_size
