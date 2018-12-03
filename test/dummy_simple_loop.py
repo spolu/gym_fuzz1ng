@@ -5,7 +5,7 @@ import numpy as np
 
 def main():
     env = gym.make('FuzzSimpleLoop-v0')
-    print("dict_size={} eof={}".format(env.dict.size(), env.eof()))
+    print("dict_size={} eof={}".format(env.dict_size(), env.eof()))
 
     env.reset()
 
