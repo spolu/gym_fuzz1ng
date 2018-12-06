@@ -12,3 +12,4 @@ from gym_fuzz1ng.envs.fuzz_checksum_k_n_env import FuzzChecksum_8_4Env
 from gym_fuzz1ng.envs.fuzz_checksum_k_n_env import FuzzChecksum_2_8Env
 from gym_fuzz1ng.envs.fuzz_checksum_k_n_env import FuzzChecksum_4_8Env
 from gym_fuzz1ng.envs.fuzz_checksum_k_n_env import FuzzChecksum_8_8Env
+from gym_fuzz1ng.envs.fuzz_crc32_simple_bits_env import FuzzCRC32SimpleBitsEnv

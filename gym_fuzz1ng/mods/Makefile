@@ -53,7 +53,7 @@ $(LIBPNG_MOD)/libpng_simple_fopen_afl: $(LIBPNG_DIR)/$(LIBPNG_A_PATH)
 SIMPLE_BITS_MOD=simple_bits-mod
 
 $(SIMPLE_BITS_MOD)/simple_bits_afl:
-	@echo " **** Building libpng_simple_bits_afl"
+	@echo " **** Building simple_bits_afl"
 	cd $(SIMPLE_BITS_MOD) && $(AFL_GCC) simple_bits_afl.c \
 	  -o simple_bits_afl -lz -lm
 
@@ -62,7 +62,7 @@ $(SIMPLE_BITS_MOD)/simple_bits_afl:
 SIMPLE_LOOP_MOD=simple_loop-mod
 
 $(SIMPLE_LOOP_MOD)/simple_loop_afl:
-	@echo " **** Building libpng_simple_loop_afl"
+	@echo " **** Building simple_loop_afl"
 	cd $(SIMPLE_LOOP_MOD) && $(AFL_GCC) simple_loop_afl.c \
 	  -o simple_loop_afl -lz -lm
 
@@ -71,9 +71,18 @@ $(SIMPLE_LOOP_MOD)/simple_loop_afl:
 CHECKSUM_K_N_MOD=checksum_k_n-mod
 
 $(CHECKSUM_K_N_MOD)/checksum_k_n_afl:
-	@echo " **** Building libpng_checksum_k_n_afl"
+	@echo " **** Building checksum_k_n_afl"
 	cd $(CHECKSUM_K_N_MOD) && $(AFL_GCC) checksum_k_n_afl.c \
 	  -o checksum_k_n_afl -lz -lm
+
+# CRC32_SIMPLE_BITS
+
+CRC32_SIMPLE_BITS_MOD=crc32_simple_bits-mod
+
+$(CRC32_SIMPLE_BITS_MOD)/crc32_simple_bits_afl:
+	@echo " **** Building crc32_simple_bits_afl"
+	cd $(CRC32_SIMPLE_BITS_MOD) && $(AFL_GCC) crc32_simple_bits_afl.c \
+	  -o crc32_simple_bits_afl -lz -lm
 
 # ALL
 

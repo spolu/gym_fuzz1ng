@@ -88,3 +88,16 @@ register(
     id='FuzzChecksum_8_8-v0',
     entry_point='gym_fuzz1ng.envs:FuzzChecksum_8_8Env',
 )
+
+
+def crc32_simple_bits_target_path():
+    package_directory = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(
+        package_directory, 'mods/crc32_simple_bits-mod/crc32_simple_bits_afl',
+    )
+
+
+register(
+    id='FuzzCRC32SimpleBits-v0',
+    entry_point='gym_fuzz1ng.envs:FuzzCRC32SimpleBitsEnv',
+)

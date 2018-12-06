@@ -63,7 +63,7 @@ python dummy_simple_bits.py
 
 ## Available environments
 
-### `FuzzLibPNGEnv`
+### `FuzzLibPNGEnv-v0`
 
 Fuzzing environment for libpng-1.6.34 (recent).
 
