@@ -91,5 +91,5 @@ Fuzzing environment for the `simple_loop` executable (see
 Fuzzing environment for the `checksum_k_n` executable (see
 [code](https://github.com/spolu/gym_fuzz1ng/blob/master/gym_fuzz1ng/mods/checksum_k_n-mod/checksum_k_n_afl.c)).
 
-- **action_space**: `Box(low=0, high=256, shape=(8,))` dictionary composed
+- **action_space**: `Box(low=0, high=256, shape=(128,))` dictionary composed
   all 256 bytes and EOF. Maximum input size is 72.
